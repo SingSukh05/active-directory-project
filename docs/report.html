@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Active Directory Project — Technical Report</title>
+<style>
+:root{
+  --ink:#141b25; --body:#273142; --muted:#5a6676; --faint:#8a94a4;
+  --navy:#16324f; --navy-2:#1f4a73; --accent:#0d7b84; --rule:#d7dee8; --soft:#f3f6fa; --soft-2:#eaf0f7;
+  --alert:#b23a26; --ok:#1a7a46; --warn:#9a6a05;
+}
+*{box-sizing:border-box}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;color:var(--body);font-family:Georgia,"Times New Roman",serif;font-size:10.8pt;line-height:1.55;
+  counter-reset:section figure table}
+h1,h2,h3,h4,.sans{font-family:"Helvetica Neue",Arial,sans-serif}
+.mono{font-family:"SF Mono",Menlo,Consolas,monospace}
+
+/* page flow */
+.page{page-break-after:always;break-after:page}
+.page:last-of-type{page-break-after:auto;break-after:auto}
+section.sec{page-break-before:always;break-before:page}
+figure,table,.callout,.incident{break-inside:avoid}
+h2,h3{break-after:avoid}
+
+/* ---- cover ---- */
+.cover{min-height:9.2in;display:flex;flex-direction:column}
+.cover .tagline{font-family:"Helvetica Neue",Arial,sans-serif;font-size:10pt;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:700}
+.cover .brandrule{height:4px;width:70px;background:var(--accent);margin:10px 0 26px}
+.cover h1{font-size:33pt;line-height:1.05;color:var(--navy);margin:0;font-weight:800;letter-spacing:-.5px}
+.cover .sub{font-size:13pt;color:var(--muted);margin:16px 0 0;max-width:34em;font-family:"Helvetica Neue",Arial,sans-serif}
+.cover .figwrap{margin:30px 0 26px;border:1px solid var(--rule);border-radius:6px;overflow:hidden;background:#0c0e0a}
+.cover .figwrap img{width:100%;display:block;max-height:4.2in;object-fit:contain}
+.cover .figcap{font-family:"Helvetica Neue",Arial,sans-serif;font-size:8.5pt;color:var(--faint);text-align:center;padding:7px}
+.meta{margin-top:auto;border-top:2px solid var(--navy);padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:4px 30px;
+  font-family:"Helvetica Neue",Arial,sans-serif;font-size:9.5pt}
+.meta div{display:flex;justify-content:space-between;border-bottom:1px solid var(--rule);padding:5px 0}
+.meta div b{color:var(--navy)} .meta div span{color:var(--muted)}
+
+/* ---- toc ---- */
+.toc-h{font-family:"Helvetica Neue",Arial,sans-serif;font-size:19pt;color:var(--navy);font-weight:800;margin:0 0 4px}
+.toc-rule{height:3px;width:54px;background:var(--accent);margin:0 0 20px}
+.toc{list-style:none;padding:0;margin:0;font-family:"Helvetica Neue",Arial,sans-serif;font-size:10.5pt}
+.toc li{display:flex;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule)}
+.toc .n{color:var(--accent);font-weight:700;width:1.8em;flex:none}
+.toc .t{color:var(--ink)}
+.toc li.sub{padding-left:2.2em;border-bottom:0;padding-top:3px;padding-bottom:3px}
+.toc li.sub .t{color:var(--muted);font-size:9.5pt}
+
+/* ---- headings ---- */
+section.sec>h2{counter-increment:section;font-size:17pt;color:var(--navy);font-weight:800;margin:0 0 3px;letter-spacing:-.3px}
+section.sec>h2::before{content:counter(section) ".  ";color:var(--accent)}
+.sechead-rule{height:2px;background:var(--navy);margin:0 0 16px}
+h3.sub{font-size:12pt;color:var(--navy-2);font-weight:700;margin:20px 0 6px}
+h4.mini{font-family:"Helvetica Neue",Arial,sans-serif;font-size:9pt;letter-spacing:1.3px;text-transform:uppercase;color:var(--accent);margin:16px 0 8px}
+p{margin:0 0 11px} p.lead{font-size:11.5pt;color:var(--ink)}
+.eyebrow{font-family:"Helvetica Neue",Arial,sans-serif;font-size:8.5pt;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700}
+strong{color:var(--ink)}
+.mono{font-family:"SF Mono",Menlo,monospace;font-size:9pt;background:var(--soft);padding:1px 4px;border-radius:3px;color:var(--navy)}
+
+/* ---- figures ---- */
+figure{counter-increment:figure;margin:16px 0;border:1px solid var(--rule);border-radius:5px;overflow:hidden;background:#fff}
+figure .imframe{background:#0a0d13;display:flex;justify-content:center}
+figure img{max-width:100%;max-height:3.5in;object-fit:contain;display:block}
+figcaption{font-family:"Helvetica Neue",Arial,sans-serif;font-size:8.6pt;color:var(--muted);padding:8px 11px;background:var(--soft);border-top:1px solid var(--rule)}
+figcaption::before{content:"Figure " counter(figure) ".  ";font-weight:700;color:var(--navy)}
+.figrow{display:flex;gap:12px}
+.figrow figure{flex:1;min-width:0}
+
+/* ---- tables ---- */
+table{width:100%;border-collapse:collapse;margin:12px 0;font-family:"Helvetica Neue",Arial,sans-serif;font-size:9.3pt}
+caption{counter-increment:table;caption-side:top;text-align:left;font-family:"Helvetica Neue",Arial,sans-serif;font-size:8.6pt;color:var(--muted);padding:0 0 6px}
+caption::before{content:"Table " counter(table) ".  ";font-weight:700;color:var(--navy)}
+th{background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-weight:600;font-size:8.8pt}
+td{padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top;color:var(--body)}
+tr:nth-child(even) td{background:var(--soft)}
+td .mono{background:transparent;padding:0;color:var(--navy)}
+.tag-f{color:var(--alert);font-weight:700} .tag-s{color:var(--ok);font-weight:700}
+
+/* ---- callouts ---- */
+.callout{border:1px solid var(--rule);border-left:4px solid var(--accent);background:var(--soft);border-radius:5px;padding:12px 15px;margin:14px 0}
+.callout.gap{border-left-color:var(--warn)} .callout.ok{border-left-color:var(--ok)}
+.callout .ct{font-family:"Helvetica Neue",Arial,sans-serif;font-weight:700;font-size:9.5pt;color:var(--navy);margin:0 0 4px}
+.callout p{margin:0;font-size:9.8pt}
+
+/* ---- incident blocks ---- */
+.incident{border:1px solid var(--rule);border-radius:6px;margin:12px 0;overflow:hidden}
+.incident .ih{background:var(--soft-2);padding:9px 13px;font-family:"Helvetica Neue",Arial,sans-serif;font-weight:700;color:var(--navy);font-size:10.5pt;border-bottom:1px solid var(--rule)}
+.incident .ih .sev{font-size:7.5pt;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:var(--navy-2);padding:2px 7px;border-radius:4px;margin-right:9px;vertical-align:1px}
+.incident .ib{padding:11px 13px}
+.incident .ib dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px}
+.incident .ib dt{font-family:"Helvetica Neue",Arial,sans-serif;font-size:8pt;letter-spacing:.6px;text-transform:uppercase;font-weight:700;color:var(--accent);padding-top:2px}
+.incident .ib dd{margin:0;font-size:9.8pt}
+
+/* code */
+pre.code{background:#0d1420;color:#d7e0ee;border-radius:5px;padding:11px 13px;font-family:"SF Mono",Menlo,monospace;font-size:8.6pt;line-height:1.6;overflow:hidden;white-space:pre-wrap;margin:12px 0}
+pre.code .g{color:#5f6e86} pre.code .ok{color:#49d884} pre.code .hl{color:#f5b949} pre.code .ac{color:#36d6cb}
+
+ul.clean{margin:6px 0 11px;padding-left:18px} ul.clean li{margin:4px 0}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font-family:"Helvetica Neue",Arial,sans-serif;font-size:8.6pt;border:1px solid var(--rule);background:#fff;border-radius:4px;padding:4px 9px;color:var(--navy)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 26px}
+.endnote{margin-top:20px;border-top:1px solid var(--rule);padding-top:10px;font-size:8.6pt;color:var(--faint);font-family:"Helvetica Neue",Arial,sans-serif}
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER ===================== -->
+<div class="page cover">
+  <div class="tagline">Technical Project Report</div>
+  <div class="brandrule"></div>
+  <h1>Active Directory Enterprise Lab:<br>Build, Detection &amp; Troubleshooting</h1>
+  <p class="sub">Designing, deploying, and defending a Windows domain with Splunk-based monitoring, validated through controlled adversary emulation and a full troubleshooting runbook.</p>
+
+  <div class="figwrap">
+    <img src="screenshots/img-001-000.jpg" alt="Network design diagram">
+    <div class="figcap">Network Structure Framework — the lab designed before deployment.</div>
+  </div>
+
+  <div class="meta">
+    <div><b>Prepared by</b><span>Sukhwinder Singh</span></div>
+    <div><b>Document type</b><span>Portfolio / Technical Report</span></div>
+    <div><b>Focus area</b><span>IT Administration · Blue Team</span></div>
+    <div><b>Environment</b><span>4 VMs · 192.168.10.0/24</span></div>
+    <div><b>Platform</b><span>VirtualBox · Win Server 2022 · Splunk · Kali</span></div>
+    <div><b>Version</b><span>1.0</span></div>
+  </div>
+</div>
+
+<!-- ===================== TOC ===================== -->
+<div class="page">
+  <div class="toc-h">Contents</div>
+  <div class="toc-rule"></div>
+  <ul class="toc">
+    <li><span class="n">1</span><span class="t">Executive Summary</span></li>
+    <li><span class="n">2</span><span class="t">Objectives &amp; Scope</span></li>
+    <li><span class="n">3</span><span class="t">Lab Architecture &amp; Environment</span></li>
+    <li><span class="n">4</span><span class="t">Phase 1 — Design &amp; Network Configuration</span></li>
+    <li><span class="n">5</span><span class="t">Phase 2 — Monitoring Pipeline: Splunk &amp; Sysmon</span></li>
+    <li><span class="n">6</span><span class="t">Phase 3 — Active Directory Deployment</span></li>
+    <li><span class="n">7</span><span class="t">Phase 4 — Attack Simulation &amp; Detection Validation</span></li>
+    <li><span class="n">8</span><span class="t">Phase 5 — Security Hardening</span></li>
+    <li><span class="n">9</span><span class="t">Phase 6 — Troubleshooting Runbook</span></li>
+    <li><span class="n">10</span><span class="t">Findings &amp; Recommendations</span></li>
+    <li><span class="n">11</span><span class="t">Tools &amp; Technologies</span></li>
+    <li><span class="n">12</span><span class="t">Skills &amp; Lessons Learned</span></li>
+    <li><span class="n">13</span><span class="t">Conclusion</span></li>
+    <li><span class="n">A</span><span class="t">Appendix — Command &amp; Event Reference</span></li>
+  </ul>
+
+  <h4 class="mini" style="margin-top:34px">Document summary</h4>
+  <p style="font-size:10pt">This report documents the end-to-end construction of a functional Active Directory
+  environment and the operational practices that surround it. It covers the network design, the deployment of a
+  Splunk SIEM with endpoint telemetry, the build-out of the domain, a controlled attack used to <em>validate</em>
+  that the monitoring works, the hardening applied afterward, and a runbook of the real-world incidents an
+  administrator resolves day to day. Figures throughout are screenshots captured directly from the live lab.</p>
+</div>
+
+<!-- ===================== 1. EXEC SUMMARY ===================== -->
+<section class="sec">
+  <h2>Executive Summary</h2>
+  <div class="sechead-rule"></div>
+  <p class="lead">This project delivers a complete, enterprise-style Active Directory (AD) environment built from the
+  ground up on four virtual machines, instrumented with a Splunk security-monitoring pipeline, and exercised through
+  a controlled attack to prove the monitoring actually detects malicious activity.</p>
+
+  <p>The work was organized into six phases: network design, monitoring deployment, Active Directory build,
+  detection validation, security hardening, and troubleshooting. Rather than treating offensive techniques as the
+  goal, the attack simulation in Phase&nbsp;4 serves a defensive purpose — it confirms that the Splunk Universal
+  Forwarder and Sysmon are capturing the right telemetry, and it surfaces the visibility gaps that remain. The
+  findings then drive the hardening in Phase&nbsp;5.</p>
+
+  <p>Key outcomes:</p>
+  <ul class="clean">
+    <li>A four-host lab on a single <span class="mono">192.168.10.0/24</span> network: a Splunk SIEM, a Windows
+    Server 2022 domain controller, a Windows&nbsp;10 client, and a Kali attacker.</li>
+    <li>End-to-end log forwarding verified, with Sysmon providing detailed endpoint telemetry to Splunk over
+    port&nbsp;<span class="mono">9997</span>.</li>
+    <li>A brute-force attack over RDP was detected cleanly in Splunk as <strong>20 failed-logon events
+    (4625)</strong> followed by a single successful logon (4624), with the source traced back to the attacker.</li>
+    <li>Adversary emulation with Atomic Red Team, mapped to the MITRE ATT&amp;CK framework, identified a concrete
+    <strong>visibility gap</strong> for local-account creation — a prioritized target for future detection.</li>
+    <li>Hardening applied least-privilege group management, logon-hour restrictions, and automatic account
+    expiration.</li>
+    <li>A documented runbook resolves four common production incidents, including recurring account lockouts and a
+    broken workstation trust relationship.</li>
+  </ul>
+</section>
+
+<!-- ===================== 2. OBJECTIVES ===================== -->
+<section class="sec">
+  <h2>Objectives &amp; Scope</h2>
+  <div class="sechead-rule"></div>
+  <h3 class="sub">Objectives</h3>
+  <ul class="clean">
+    <li>Design and document a realistic network before building it.</li>
+    <li>Deploy and configure Active Directory Domain Services, DNS, and Group Policy on Windows Server 2022.</li>
+    <li>Stand up a Splunk SIEM and forward Windows and Sysmon telemetry from every endpoint.</li>
+    <li>Validate the detection pipeline against a real attack and quantify what is — and is not — visible.</li>
+    <li>Apply security hardening informed by those results.</li>
+    <li>Produce a repeatable troubleshooting runbook for common domain incidents.</li>
+  </ul>
+  <h3 class="sub">In scope</h3>
+  <p>Virtualized infrastructure, domain services, endpoint logging, SIEM ingestion, a single controlled attack path
+  (RDP brute force) and adversary emulation (Atomic Red Team), account and permission administration, and
+  incident resolution.</p>
+  <h3 class="sub">Out of scope</h3>
+  <p>Production-grade high availability, multi-site/multi-domain forests, external perimeter security, and any
+  activity outside this isolated lab network. All testing was performed against systems built and owned for this
+  project.</p>
+</section>
+
+<!-- ===================== 3. ARCHITECTURE ===================== -->
+<section class="sec">
+  <h2>Lab Architecture &amp; Environment</h2>
+  <div class="sechead-rule"></div>
+  <p>All machines run under Oracle VirtualBox on a single NAT network, emulating a flat corporate LAN. The Splunk
+  server and domain controller use static addresses; the client is assigned a static address for predictable
+  forwarding and testing. The Kali host sits logically outside the domain's trust as the attacker.</p>
+
+  <table>
+    <caption>Host inventory and roles.</caption>
+    <thead><tr><th>Host</th><th>Operating system</th><th>IP address</th><th>Role &amp; services</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Splunk</strong></td><td>Ubuntu Server</td><td><span class="mono">192.168.10.10</span></td><td>SIEM indexer; receiver on <span class="mono">:9997</span>, web console on <span class="mono">:8000</span></td></tr>
+      <tr><td><strong>ADDC01</strong></td><td>Windows Server 2022</td><td><span class="mono">192.168.10.7</span></td><td>Domain Controller, DNS, Group Policy; Universal Forwarder + Sysmon</td></tr>
+      <tr><td><strong>target-PC</strong></td><td>Windows 10</td><td><span class="mono">192.168.10.100</span></td><td>Domain-joined workstation; Universal Forwarder + Sysmon</td></tr>
+      <tr><td><strong>kali</strong></td><td>Kali Linux</td><td><span class="mono">192.168.10.250</span></td><td>Attacker — Crowbar (brute force) and Atomic Red Team</td></tr>
+    </tbody>
+  </table>
+
+  <h4 class="mini">Data flows</h4>
+  <ul class="clean">
+    <li><strong>Telemetry:</strong> the domain controller and client forward Windows Event Logs and Sysmon events to
+    the Splunk indexer on <span class="mono">:9997</span>.</li>
+    <li><strong>Authentication / name resolution:</strong> the client resolves names and authenticates against the
+    domain controller (DNS pointed at <span class="mono">192.168.10.7</span>).</li>
+    <li><strong>Attack path:</strong> Kali targets the client's exposed RDP service (<span class="mono">:3389</span>).</li>
+  </ul>
+</section>
+
+<!-- ===================== 4. PHASE 1 ===================== -->
+<section class="sec">
+  <h2>Phase 1 — Design &amp; Network Configuration</h2>
+  <div class="sechead-rule"></div>
+  <p class="lead">A build is only as sound as its plan. The first phase defined the entire environment on paper, then
+  implemented the networking so the four machines behaved like hosts on one corporate subnet.</p>
+
+  <h3 class="sub">1.1  Network design</h3>
+  <p>The <strong>Network Structure Framework</strong> (cover figure) mapped every host, its address, and the traffic
+  between them before any VM was created. Designing first forces a clear understanding of the environment and how it
+  would be secured — and mirrors the diagramming an administrator is expected to produce on demand.</p>
+
+  <h3 class="sub">1.2  Provisioning &amp; integrity</h3>
+  <p>Each installer was validated with a SHA-256 hash against its published value before use, ensuring only genuine,
+  untampered media entered the lab. All four virtual machines were then provisioned in VirtualBox and attached to a
+  common NAT network, enabling snapshots for safe, reversible testing.</p>
+
+  <div class="figrow">
+    <figure><div class="imframe"><img src="screenshots/img-003-002.jpg" alt="VirtualBox VMs"></div><figcaption>The four-machine fleet in VirtualBox — client, Kali, domain controller, and Splunk server.</figcaption></figure>
+    <figure><div class="imframe"><img src="screenshots/img-004-003.jpg" alt="NAT network"></div><figcaption>The NAT network “AD Project” on 192.168.10.0/24 — the shared subnet for all hosts.</figcaption></figure>
+  </div>
+
+  <h3 class="sub">1.3  Static addressing</h3>
+  <p>On the Ubuntu/Splunk server, a static IP was configured by editing the Netplan file
+  <span class="mono">00-installer-config.yaml</span> and applying it; connectivity was confirmed with
+  <span class="mono">ip a</span> and a successful ping to the internet. A dedicated service user and a mounted shared
+  folder were created to move installation media onto the server cleanly.</p>
+</section>
+
+<!-- ===================== 5. PHASE 2 ===================== -->
+<section class="sec">
+  <h2>Phase 2 — Monitoring Pipeline: Splunk &amp; Sysmon</h2>
+  <div class="sechead-rule"></div>
+  <p class="lead">With the network in place, the next phase built the security-monitoring backbone: a Splunk SIEM
+  ingesting detailed endpoint telemetry from every Windows host.</p>
+
+  <h3 class="sub">2.1  Splunk SIEM</h3>
+  <p>Splunk Enterprise was installed under <span class="mono">/opt/splunk</span> on the Ubuntu server to act as the
+  indexer and search platform. Receiving was enabled so that forwarders could deliver events on port
+  <span class="mono">9997</span>.</p>
+
+  <div class="figrow">
+    <figure><div class="imframe"><img src="screenshots/img-007-010.jpg" alt="Splunk installed"></div><figcaption>Splunk Enterprise installed on the Ubuntu server.</figcaption></figure>
+    <figure><div class="imframe"><img src="screenshots/img-012-019.jpg" alt="Indexes on 9997"></div><figcaption>Indexes receiving forwarded data on port 9997, confirming the pipeline is live.</figcaption></figure>
+  </div>
+
+  <h3 class="sub">2.2  Endpoint telemetry — Universal Forwarder &amp; Sysmon</h3>
+  <p>The Splunk Universal Forwarder and <strong>Sysmon</strong> were installed on both the Windows&nbsp;10 client and
+  the Windows Server 2022 domain controller. Sysmon enriches the standard Windows logs with high-fidelity detail —
+  process creation, command lines, hashes, and network connections — which is the raw material for meaningful
+  detections. Forwarding was controlled through a <em>local</em> copy of <span class="mono">inputs.conf</span>; the
+  default configuration was deliberately left untouched to avoid breaking the application, a supportable practice in
+  production environments.</p>
+
+  <h3 class="sub">2.3  Service permissions</h3>
+  <p>The forwarder initially ran as the low-privilege <span class="mono">NT</span> service account, which lacked the
+  rights to read every required log. The service logon identity was changed so the full event set could be
+  collected — a practical lesson in least privilege versus operational need.</p>
+
+  <div class="figrow">
+    <figure><div class="imframe"><img src="screenshots/img-017-028.jpg" alt="Services running"></div><figcaption>Sysmon and the Splunk forwarder running after the service-account fix.</figcaption></figure>
+    <figure><div class="imframe"><img src="screenshots/img-018-030.jpg" alt="Sysmon on both hosts"></div><figcaption>Sysmon fully deployed on both the client and the domain controller.</figcaption></figure>
+  </div>
+</section>
+
+<!-- ===================== 6. PHASE 3 ===================== -->
+<section class="sec">
+  <h2>Phase 3 — Active Directory Deployment</h2>
+  <div class="sechead-rule"></div>
+  <p class="lead">This phase stood up the domain the way a real organization runs it: a promoted controller, a
+  departmental structure, managed users, integrated DNS, and a joined client.</p>
+
+  <h3 class="sub">3.1  Promoting the domain controller</h3>
+  <p>Active Directory Domain Services and role-based access control services were installed on the Windows Server
+  2022 host, which was then promoted to a domain controller with a new <span class="mono">.local</span> root domain.
+  Signing in with the domain administrator account confirmed a successful promotion.</p>
+
+  <div class="figrow">
+    <figure><div class="imframe"><img src="screenshots/img-023-038.jpg" alt="DC promoted"></div><figcaption>Domain administrator sign-in confirms the controller is promoted.</figcaption></figure>
+    <figure><div class="imframe"><img src="screenshots/img-024-039.jpg" alt="Creating OU"></div><figcaption>Creating Organizational Units to separate IT, HR, and other departments.</figcaption></figure>
+  </div>
+
+  <h3 class="sub">3.2  Users, groups &amp; DNS</h3>
+  <p>Organizational Units were created to model the company's departments, and user accounts were placed into the
+  correct OUs (for example, a new user added to IT). DNS was then changed from a public resolver
+  (<span class="mono">8.8.8.8</span>) to the Active Directory domain service, so name resolution runs through the
+  controller — a prerequisite for domain membership.</p>
+
+  <div class="figrow">
+    <figure><div class="imframe"><img src="screenshots/img-025-040.jpg" alt="Create user"></div><figcaption>Creating a domain user and assigning the correct department OU.</figcaption></figure>
+    <figure><div class="imframe"><img src="screenshots/img-027-043.jpg" alt="DNS to AD"></div><figcaption>Pointing DNS at the Active Directory domain service.</figcaption></figure>
+  </div>
+
+  <h3 class="sub">3.3  Joining the client</h3>
+  <p>With DNS configured, the Windows&nbsp;10 client was joined to the domain and every AD user could authenticate on
+  it. The client's <span class="mono">ipconfig</span> confirmed a static address with DNS pointed at the controller.</p>
+
+  <figure><div class="imframe"><img src="screenshots/img-029-045.jpg" alt="Join domain"></div><figcaption>Joining the Windows 10 workstation to the domain — a standalone PC becomes a managed member.</figcaption></figure>
+</section>
+
+<!-- ===================== 7. PHASE 4 ===================== -->
+<section class="sec">
+  <h2>Phase 4 — Attack Simulation &amp; Detection Validation</h2>
+  <div class="sechead-rule"></div>
+  <p class="lead">A monitoring pipeline is only trustworthy once it has caught something real. This phase ran a
+  controlled attack from Kali, verified detection in Splunk, and then used adversary emulation to measure the
+  remaining blind spots.</p>
+
+  <h3 class="sub">4.1  Brute-force attack (RDP)</h3>
+  <p>Remote Desktop was enabled for selected users on the client. From Kali, the <strong>Crowbar</strong> tool drove
+  an RDP brute force against account <span class="mono">tsmith</span> at <span class="mono">192.168.10.100</span>
+  using a prepared password wordlist. The tool worked through the list and returned <span class="mono">RDP-SUCCESS</span>,
+  recovering a valid credential.</p>
+
+  <pre class="code"><span class="ac">└─$</span> crowbar -b rdp -u tsmith -C <span class="hl">passwords.txt</span> -s 192.168.10.100/32
+Trying 192.168.10.100:3389
+<span class="ok">RDP-SUCCESS : 192.168.10.100:3389 - tsmith:P@ssw0rd1!</span></pre>
+
+  <figure><div class="imframe"><img src="screenshots/img-035-054.jpg" alt="Crowbar success"></div><figcaption>Crowbar returns RDP-SUCCESS against the Windows client.</figcaption></figure>
+
+  <h3 class="sub">4.2  Detection in Splunk</h3>
+  <p>In Splunk, the attack produced a clear, unambiguous signature. Twenty <strong>Event 4625</strong> (failed logon)
+  records appeared, followed by a single <strong>Event 4624</strong> (successful logon). Critically, all failures
+  occurred in the same instant — a pattern characteristic of automated attacks rather than human error — and the
+  successful logon event identified the <strong>source address of the Kali attacker</strong>.</p>
+
+  <table>
+    <caption>Windows security events generated by the brute force, as observed in Splunk.</caption>
+    <thead><tr><th>Event ID</th><th>Count</th><th>Meaning</th><th>Significance</th></tr></thead>
+    <tbody>
+      <tr><td class="mono tag-f">4625</td><td>20</td><td>Failed logon</td><td>Burst at one instant → automated brute force</td></tr>
+      <tr><td class="mono tag-s">4624</td><td>1</td><td>Successful logon</td><td>The breach; source traced to attacker IP</td></tr>
+      <tr><td class="mono">4634</td><td>1</td><td>Logoff</td><td>Session teardown</td></tr>
+      <tr><td class="mono">4776</td><td>1</td><td>Credential validation</td><td>Supporting authentication evidence</td></tr>
+    </tbody>
+  </table>
+
+  <div class="figrow">
+    <figure><div class="imframe"><img src="screenshots/img-036-055.jpg" alt="4625 x20"></div><figcaption>Splunk shows 20 × Event 4625 (≈87% of events) for tsmith on the target.</figcaption></figure>
+    <figure><div class="imframe"><img src="screenshots/img-039-059.jpg" alt="Source IP"></div><figcaption>The successful 4624 event identifies the source — the Kali attacker's address.</figcaption></figure>
+  </div>
+
+  <h3 class="sub">4.3  Adversary emulation — Atomic Red Team &amp; MITRE ATT&amp;CK</h3>
+  <p>To measure coverage beyond a single attack, <strong>Atomic Red Team</strong> was installed (after adding a
+  scoped Microsoft Defender exclusion so the test files were not quarantined). Its "atomics" are small, safe tests,
+  each tied to a technique ID in the MITRE ATT&amp;CK framework.</p>
+  <div class="chiprow">
+    <span class="chip">T1110 — Brute Force (RDP)</span>
+    <span class="chip">T1136.001 — Create Account: Local</span>
+    <span class="chip">T1059.001 — PowerShell</span>
+    <span class="chip">T1059.003 — Windows Command Shell</span>
+  </div>
+
+  <p>The <strong>Create Account (T1136.001)</strong> test created a local account, but the activity did
+  <em>not</em> appear in Splunk. This negative result was the most valuable finding of the phase.</p>
+
+  <div class="callout gap">
+    <p class="ct">Finding — visibility gap (local account creation)</p>
+    <p>Under the current configuration, creation of a local account produces no visible telemetry in Splunk. An
+    attacker establishing persistence this way would go undetected. This is a prioritized target for a new detection
+    rule, not a dead end — it is precisely the kind of blind spot adversary emulation is designed to reveal.</p>
+  </div>
+
+  <p>By contrast, the <strong>PowerShell / command-shell techniques (T1059)</strong> were captured in detail by
+  Sysmon — the full command line was visible in Splunk — meaning alerts can be built on that activity immediately.</p>
+
+  <div class="figrow">
+    <figure><div class="imframe"><img src="screenshots/img-045-071.jpg" alt="No results"></div><figcaption>The local-account test produced no Splunk results — a documented visibility gap.</figcaption></figure>
+    <figure><div class="imframe"><img src="screenshots/img-048-077.jpg" alt="PowerShell captured"></div><figcaption>Sysmon captures the PowerShell technique in full — a ready basis for alerting.</figcaption></figure>
+  </div>
+</section>
+
+<!-- ===================== 8. PHASE 5 ===================== -->
+<section class="sec">
+  <h2>Phase 5 — Security Hardening</h2>
+  <div class="sechead-rule"></div>
+  <p class="lead">Informed by the validation results, the environment was hardened using native Active Directory and
+  Group Policy controls that reduce standing access and limit the window of risk.</p>
+
+  <h3 class="sub">5.1  Group-based access (least privilege / RBAC)</h3>
+  <p>Permissions were assigned to <strong>security groups</strong> rather than to individual users, so access can be
+  granted and revoked for many people at once and remains auditable at scale. A realistic set of simulated users and
+  data was created to represent a running organization.</p>
+
+  <h3 class="sub">5.2  Logon-hour restrictions</h3>
+  <p>Time-based access control was applied so that users cannot sign in during a defined maintenance window,
+  protecting backups and software updates from interference.</p>
+
+  <h3 class="sub">5.3  Automatic account expiration</h3>
+  <p>Contractor accounts were configured to <strong>expire on their end date</strong>, so access terminates
+  automatically when a contract ends — removing the risk of forgotten, lingering accounts.</p>
+
+  <div class="figrow">
+    <figure><div class="imframe"><img src="screenshots/img-052-082.jpg" alt="Logon hours"></div><figcaption>Logon-hour restrictions limiting when an account may sign in.</figcaption></figure>
+    <figure><div class="imframe"><img src="screenshots/img-053-085.jpg" alt="Account expiry"></div><figcaption>Account expiration ending contractor access automatically on the due date.</figcaption></figure>
+  </div>
+</section>
+
+<!-- ===================== 9. PHASE 6 ===================== -->
+<section class="sec">
+  <h2>Phase 6 — Troubleshooting Runbook</h2>
+  <div class="sechead-rule"></div>
+  <p class="lead">Operating a domain means resolving the issues users actually encounter. Each incident below is
+  documented as symptom → diagnosis → resolution, including escalation paths when the obvious fix does not hold.</p>
+
+  <div class="incident">
+    <div class="ih"><span class="sev">Account</span>Incident 1 — Recurring account lockout</div>
+    <div class="ib"><dl>
+      <dt>Symptom</dt><dd>A user cannot sign in; the account is locked. After a password reset and unlock, it locks again within minutes.</dd>
+      <dt>Diagnosis</dt><dd>A recurring lockout is not a password problem. <strong>Event Viewer</strong> security logs are reviewed to identify which computer is generating the failed logons — typically a stale cached credential, a mapped drive, or a service still using the old password.</dd>
+      <dt>Resolution</dt><dd>Correct the <em>source</em> of the bad credentials rather than repeatedly unlocking the account. Once the source is fixed, the unlock holds.</dd>
+    </dl></div>
+  </div>
+
+  <div class="figrow">
+    <figure><div class="imframe"><img src="screenshots/img-054-087.jpg" alt="Locked account"></div><figcaption>The account shown locked out in Active Directory.</figcaption></figure>
+    <figure><div class="imframe"><img src="screenshots/img-056-090.jpg" alt="Event Viewer"></div><figcaption>Event Viewer security logs used to trace the lockout source.</figcaption></figure>
+  </div>
+
+  <div class="incident">
+    <div class="ih"><span class="sev">Account</span>Incident 2 — Expired account</div>
+    <div class="ib"><dl>
+      <dt>Symptom</dt><dd>A valid user suddenly cannot log in, with no lockout and a correct password.</dd>
+      <dt>Diagnosis</dt><dd>The account's <strong>“Account expires”</strong> date has passed — common for contractors, and the expected result of the hardening applied in Phase&nbsp;5.</dd>
+      <dt>Resolution</dt><dd>If the person is continuing, extend or remove the expiration; if not, confirm the cutoff was intentional. Access then matches the contract.</dd>
+    </dl></div>
+  </div>
+
+  <div class="incident">
+    <div class="ih"><span class="sev">Access</span>Incident 3 — Access denied to a shared resource</div>
+    <div class="ib"><dl>
+      <dt>Symptom</dt><dd>A new HR hire receives <strong>“access denied”</strong> when creating files in the HR share.</dd>
+      <dt>Diagnosis</dt><dd>The user's <strong>Member Of</strong> tab is empty. Comparison with a working HR peer shows the peer belongs to the <span class="mono">$HR-Staff</span> group, and the folder's NTFS security grants that group full control. The new hire was never added.</dd>
+      <dt>Resolution</dt><dd>Add the user to <span class="mono">$HR-Staff</span> so access is inherited through the group, then verify against the folder's NTFS permissions — clean, auditable, group-based access.</dd>
+    </dl></div>
+  </div>
+
+  <div class="figrow">
+    <figure><div class="imframe"><img src="screenshots/img-059-096.jpg" alt="Member Of compare"></div><figcaption>Comparing the new hire's group memberships against a working HR peer.</figcaption></figure>
+    <figure><div class="imframe"><img src="screenshots/img-062-099.jpg" alt="NTFS permissions"></div><figcaption>The HR folder's NTFS security: the $HR-Staff group has full control.</figcaption></figure>
+  </div>
+
+  <div class="incident">
+    <div class="ih"><span class="sev">Host</span>Incident 4 — Broken workstation trust relationship</div>
+    <div class="ib"><dl>
+      <dt>Symptom</dt><dd>At sign-in: <em>“The security database on the server does not have a computer account for this workstation trust relationship.”</em> Domain credentials are rejected.</dd>
+      <dt>Diagnosis</dt><dd>The computer's secure channel with the domain has broken, typically after being disconnected for an extended period; the machine's account secret no longer matches the domain's.</dd>
+      <dt>Resolution</dt><dd>(1) Sign in with the <strong>local</strong> admin account (<span class="mono">.\admin</span>). (2) Move the PC to a workgroup and reboot. (3) <strong>Delete the stale computer object in AD</strong> — if the same name is reused, the old object must be removed first or the rejoin conflicts. (4) Rejoin the domain and sign in.</dd>
+    </dl></div>
+  </div>
+
+  <div class="callout">
+    <p class="ct">Operational note</p>
+    <p>Knowing that the stale computer object must be deleted in AD <em>before</em> rejoining with the same name is
+    the difference between a five-minute fix and hours of conflicts.</p>
+  </div>
+
+  <div class="figrow">
+    <figure><div class="imframe"><img src="screenshots/img-063-100.jpg" alt="Trust error"></div><figcaption>The workstation trust-relationship error at the sign-in screen.</figcaption></figure>
+    <figure><div class="imframe"><img src="screenshots/img-066-104.jpg" alt="Delete and re-add"></div><figcaption>Removing the stale computer object in AD before rejoining the domain.</figcaption></figure>
+  </div>
+</section>
+
+<!-- ===================== 10. FINDINGS ===================== -->
+<section class="sec">
+  <h2>Findings &amp; Recommendations</h2>
+  <div class="sechead-rule"></div>
+  <table>
+    <caption>Summary of findings and recommended actions.</caption>
+    <thead><tr><th>#</th><th>Finding</th><th>Impact</th><th>Recommendation</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Brute force over RDP succeeded against a weak password.</td><td>High — direct account compromise.</td><td>Enforce strong password &amp; lockout policy; restrict/limit RDP exposure; add MFA where possible.</td></tr>
+      <tr><td>2</td><td>Local-account creation (T1136.001) generated no Splunk telemetry.</td><td>Medium — undetected persistence.</td><td>Enable and forward the relevant audit/Event ID (e.g., 4720) and build a detection rule.</td></tr>
+      <tr><td>3</td><td>Forwarder initially ran with insufficient privileges.</td><td>Medium — missing logs.</td><td>Run the forwarder with an identity scoped to read required logs; document the change.</td></tr>
+      <tr><td>4</td><td>Brute-force pattern (20×4625 in one instant) is highly detectable.</td><td>Positive — strong signal.</td><td>Create a correlation alert on failed-logon bursts to flag attacks in real time.</td></tr>
+    </tbody>
+  </table>
+  <p>Overall, the environment demonstrates a working detection pipeline with one clearly identified and prioritized
+  gap. The recommendations above convert the validation results directly into a short, actionable backlog.</p>
+</section>
+
+<!-- ===================== 11. TOOLS ===================== -->
+<section class="sec">
+  <h2>Tools &amp; Technologies</h2>
+  <div class="sechead-rule"></div>
+  <div class="two">
+    <div>
+      <h4 class="mini">Operating systems &amp; virtualization</h4>
+      <p>Oracle VirtualBox · Windows Server 2022 · Windows 10 · Ubuntu Server (Linux) · Kali Linux</p>
+      <h4 class="mini">Active Directory &amp; Windows administration</h4>
+      <p>AD Domain Services · Domain Controller · DNS · Group Policy (GPO) · Organizational Units · Security Groups ·
+      NTFS permissions · ADUC · Event Viewer · Remote Desktop (RDP)</p>
+      <h4 class="mini">SIEM, logging &amp; detection</h4>
+      <p>Splunk Enterprise · Splunk Universal Forwarder · Sysmon · SPL · Windows Event Logs ·
+      <span class="mono">inputs.conf</span> · MITRE ATT&amp;CK</p>
+    </div>
+    <div>
+      <h4 class="mini">Networking &amp; command line</h4>
+      <p>NAT networking · static IP · Netplan · TCP/IP &amp; subnetting · PowerShell · Linux CLI ·
+      <span class="mono">Get-FileHash</span> (SHA-256) · <span class="mono">ping</span> / <span class="mono">ipconfig</span> / <span class="mono">ip a</span></p>
+      <h4 class="mini">Offensive testing &amp; validation</h4>
+      <p>Crowbar (RDP brute force) · password wordlists · Atomic Red Team · Microsoft Defender</p>
+      <h4 class="mini">Practices &amp; concepts</h4>
+      <p>Network diagramming · least privilege / RBAC · account lifecycle · incident troubleshooting ·
+      documentation · file-integrity verification</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 12. LESSONS ===================== -->
+<section class="sec">
+  <h2>Skills &amp; Lessons Learned</h2>
+  <div class="sechead-rule"></div>
+  <ul class="clean">
+    <li><strong>How Active Directory really works</strong> — promoting a controller, structuring an organization with
+    OUs, and why group-based permissions scale where per-user permissions do not.</li>
+    <li><strong>Build logging, then prove it works</strong> — monitoring must be validated against real activity, not
+    assumed; confirming events actually arrive is part of the job.</li>
+    <li><strong>Reading Windows security events</strong> — distinguishing 4625 from 4624 and recognizing an attack
+    pattern from the logs alone.</li>
+    <li><strong>Testing defenses reveals blind spots</strong> — a technique that produces no telemetry is itself a
+    finding and a roadmap for the next detection.</li>
+    <li><strong>Security is about reducing standing access</strong> — least privilege, logon hours, and automatic
+    expiration lower risk without relying on anyone to remember cleanup.</li>
+    <li><strong>Fix the source, not the symptom</strong> — recurring lockouts and broken domain trust require root-cause
+    diagnosis, not repeated quick fixes.</li>
+  </ul>
+  <p>These hands-on skills map directly to the requirements of IT Support, Help Desk, Junior System Administrator,
+  Active Directory Administrator, and Tier-1 SOC Analyst roles, and align with the CompTIA A+, Network+, Security+,
+  and Microsoft certification paths.</p>
+</section>
+
+<!-- ===================== 13. CONCLUSION ===================== -->
+<section class="sec">
+  <h2>Conclusion</h2>
+  <div class="sechead-rule"></div>
+  <p>This project delivered a complete Active Directory environment and demonstrated the full lifecycle around it:
+  deliberate design, careful deployment, instrumented monitoring, honest validation, targeted hardening, and
+  practical troubleshooting. The controlled attack was not an end in itself but a means to prove the detection
+  pipeline works and to expose where it does not — turning a home lab into evidence of real operational capability.</p>
+  <p>The result is a single environment that shows the ability to stand up infrastructure, monitor it, think like an
+  attacker, verify defenses, and resolve the everyday incidents that keep a domain running.</p>
+
+  <h2 style="counter-increment:none;margin-top:34px">Appendix A — Command &amp; Event Reference</h2>
+  <div class="sechead-rule"></div>
+  <table>
+    <caption>Key commands and events referenced in this report.</caption>
+    <thead><tr><th>Item</th><th>Context</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">Get-FileHash</td><td>PowerShell</td><td>Verify installer integrity (SHA-256)</td></tr>
+      <tr><td class="mono">ip a / ipconfig</td><td>Linux / Windows</td><td>Confirm addressing</td></tr>
+      <tr><td class="mono">crowbar -b rdp …</td><td>Kali</td><td>RDP brute-force test</td></tr>
+      <tr><td class="mono">EventCode 4625</td><td>Splunk / Windows</td><td>Failed logon (brute-force indicator)</td></tr>
+      <tr><td class="mono">EventCode 4624</td><td>Splunk / Windows</td><td>Successful logon</td></tr>
+      <tr><td class="mono">T1136.001</td><td>MITRE ATT&amp;CK</td><td>Create local account (visibility-gap test)</td></tr>
+      <tr><td class="mono">:9997</td><td>Splunk</td><td>Forwarder receiving port</td></tr>
+    </tbody>
+  </table>
+  <div class="endnote">Active Directory Enterprise Lab — Technical Project Report · Prepared by Sukhwinder Singh ·
+  All figures captured from the live lab environment.</div>
+</section>
+
+</body>
+</html>
