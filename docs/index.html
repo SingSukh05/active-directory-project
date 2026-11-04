@@ -64,12 +64,24 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;
 .titlewrap .kwell{font-family:"JetBrains Mono";font-size:10.5px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
 .titlewrap .kwell i{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab,var(--accent) 22%,transparent)}
 .titlewrap h1{font-size:clamp(19px,3.3vw,25px);font-weight:800;letter-spacing:-.3px;margin:0;line-height:1.05}
-nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;max-width:100%;padding-bottom:2px}
+.tabhint{font-family:"JetBrains Mono";font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:7px}
+.tabhint svg{width:12px;height:12px;animation:nudge 1.8s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+nav.tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;max-width:100%;padding:4px 2px 7px}
 nav.tabs::-webkit-scrollbar{display:none}
-.tab{font-family:"JetBrains Mono";font-size:11.5px;font-weight:500;letter-spacing:.2px;color:var(--muted);
-  background:transparent;border:1px solid transparent;border-radius:9px;padding:7px 12px;cursor:pointer;white-space:nowrap;transition:.16s}
-.tab:hover{color:var(--fg);background:var(--surface)}
-.tab[aria-selected="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent);font-weight:700}
+.tab{position:relative;font-family:"JetBrains Mono";font-size:12.5px;font-weight:600;letter-spacing:.2px;color:var(--fg);
+  background:var(--surface);border:1px solid var(--line-2);border-radius:11px;padding:10px 16px;cursor:pointer;white-space:nowrap;
+  transition:transform .18s cubic-bezier(.2,.7,.2,1),background .18s,border-color .18s,color .18s,box-shadow .18s}
+.tab:hover{color:var(--accent);border-color:var(--accent);transform:translateY(-3px);box-shadow:0 12px 26px -16px color-mix(in oklab,var(--accent) 80%,black)}
+.tab:active{transform:translateY(-1px)}
+.tab[aria-selected="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent);font-weight:700;
+  box-shadow:0 0 0 4px color-mix(in oklab,var(--accent) 24%,transparent)}
+.tab.feature{border-color:color-mix(in oklab,var(--warn) 55%,var(--line-2))}
+.tab.feature::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--warn);display:inline-block;margin-right:7px;vertical-align:middle;
+  box-shadow:0 0 0 3px color-mix(in oklab,var(--warn) 25%,transparent);animation:pulsedot 2s ease-in-out infinite}
+.tab.feature[aria-selected="true"]{border-color:var(--accent)}
+.tab.feature[aria-selected="true"]::before{background:var(--accent-ink);box-shadow:none;animation:none}
+@keyframes pulsedot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.3)}}
 .theme-btn{position:absolute;right:max(4px,env(safe-area-inset-right,0px));top:12px;width:36px;height:36px;border-radius:10px;
   border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;display:grid;place-items:center}
 .theme-btn:hover{color:var(--accent);border-color:var(--line-2)}
@@ -183,6 +195,46 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding-block:28px 46px;
 footer b{color:var(--fg)}
 footer .ft-mono{font-family:"JetBrains Mono";margin-top:8px;display:block;font-size:11px}
 
+/* featured phase rows */
+.prow.core{border-color:color-mix(in oklab,var(--warn) 45%,var(--line));background:
+  linear-gradient(90deg,color-mix(in oklab,var(--warn) 9%,transparent),transparent 55%),var(--surface)}
+.prow.core:hover{border-color:var(--warn)}
+.prow.core .pn{background:var(--warn);color:#2a1c00}
+.corebadge{font-family:"JetBrains Mono";font-size:9.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--warn);border:1px solid color-mix(in oklab,var(--warn) 50%,transparent);border-radius:6px;padding:2px 7px;margin-left:8px;white-space:nowrap}
+
+/* featured banner atop a panel */
+.featbanner{display:flex;align-items:center;gap:13px;border:1px solid color-mix(in oklab,var(--warn) 40%,var(--line));
+  border-radius:14px;padding:13px 17px;margin:0 auto 26px;max-width:760px;
+  background:linear-gradient(100deg,color-mix(in oklab,var(--warn) 12%,transparent),transparent 60%),var(--surface)}
+.featbanner .fb-ic{width:38px;height:38px;border-radius:10px;flex:none;display:grid;place-items:center;
+  background:color-mix(in oklab,var(--warn) 22%,transparent);color:var(--warn)}
+.featbanner .fb-ic svg{width:20px;height:20px}
+.featbanner b{font-family:"Archivo";font-size:14px;display:block}
+.featbanner span{font-size:12.5px;color:var(--muted)}
+
+/* tools grid */
+.toolcats{margin-top:30px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.toolcard{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:18px}
+.toolcard h4{margin:0 0 13px;font-size:12px;font-family:"JetBrains Mono";letter-spacing:.8px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
+.toolcard h4 svg{width:15px;height:15px}
+.toolcard .tlist{display:flex;flex-wrap:wrap;gap:8px}
+.tool{font-family:"JetBrains Mono";font-size:12px;border:1px solid var(--line-2);border-radius:8px;padding:6px 11px;color:var(--fg);background:var(--surface-2)}
+
+/* what I learned */
+.learn{margin-top:26px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.lrow{display:grid;grid-template-columns:auto 1fr;gap:13px;align-items:start;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:15px 16px}
+.lrow .lk{width:30px;height:30px;border-radius:8px;flex:none;display:grid;place-items:center;background:color-mix(in oklab,var(--accent) 16%,transparent);color:var(--accent)}
+.lrow .lk svg{width:16px;height:16px}
+.lrow p{margin:0;font-size:13.5px;color:var(--muted)}
+.lrow p b{color:var(--fg);font-weight:600;display:block;font-family:"Archivo";margin-bottom:2px;font-size:14px}
+
+/* role fit */
+.roles{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px}
+.role-pill{font-family:"Archivo";font-weight:600;font-size:14px;border:1px solid var(--line-2);border-radius:999px;padding:9px 16px;
+  color:var(--fg);background:var(--surface);display:inline-flex;align-items:center;gap:8px}
+.role-pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok)}
+
 /* lightbox */
 #lb{position:fixed;inset:0;z-index:100;background:rgba(3,6,12,.93);backdrop-filter:blur(6px);display:none;place-items:center;padding:22px;cursor:zoom-out}
 #lb.on{display:grid}
@@ -197,11 +249,15 @@ footer .ft-mono{font-family:"JetBrains Mono";margin-top:8px;display:block;font-s
   .stats{grid-template-columns:1fr 1fr}
   .legend{grid-template-columns:1fr}
 }
+@media (max-width:700px){
+  .toolcats,.learn{grid-template-columns:1fr}
+}
 @media (max-width:600px){
   .shotrow{grid-template-columns:1fr}
   .step{grid-template-columns:40px 1fr;gap:12px}
   .snum{height:40px;font-size:12px;position:static}
   .prow{grid-template-columns:auto 1fr;}.prow .go{display:none}
+  .corebadge{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 html{scroll-behavior:smooth}
@@ -213,14 +269,16 @@ html{scroll-behavior:smooth}
       <span class="kwell"><i></i>HOME LAB · BLUE TEAM · SYSTEM ADMINISTRATION</span>
       <h1>Active Directory Project</h1>
     </div>
+    <div class="tabhint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>Tap a phase to explore · ★ = core IT skills</div>
     <nav class="tabs" id="tabs" role="tablist" aria-label="Project phases">
       <button class="tab" role="tab" data-view="overview">Overview</button>
       <button class="tab" role="tab" data-view="network">Design &amp; Network</button>
       <button class="tab" role="tab" data-view="monitoring">Splunk &amp; Sysmon</button>
-      <button class="tab" role="tab" data-view="directory">Active Directory</button>
+      <button class="tab feature" role="tab" data-view="directory">Active Directory</button>
       <button class="tab" role="tab" data-view="validation">Validation &amp; Atomic Red</button>
       <button class="tab" role="tab" data-view="hardening">Hardening</button>
-      <button class="tab" role="tab" data-view="troubleshooting">Troubleshooting</button>
+      <button class="tab feature" role="tab" data-view="troubleshooting">Troubleshooting</button>
+      <button class="tab" role="tab" data-view="takeaways">Tools &amp; Takeaways</button>
     </nav>
     <button class="theme-btn" id="theme" title="Toggle theme" aria-label="Toggle light / dark">
       <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>
@@ -252,30 +310,28 @@ html{scroll-behavior:smooth}
     </div>
 
     <div class="jump">
-      <h3>Jump straight to any step</h3>
+      <h3><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:5px"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Skills recruiters search for — tap one to see where I did it</h3>
       <div class="chips" id="jumpchips">
-        <button class="jchip" data-view="network" data-step="s-nat"><b>NAT</b> network</button>
-        <button class="jchip" data-view="network" data-step="s-netplan"><b>Netplan</b> static IP</button>
-        <button class="jchip" data-view="monitoring" data-step="s-splunk"><b>Splunk</b> install</button>
-        <button class="jchip" data-view="monitoring" data-step="s-uf"><b>Universal</b> Forwarder</button>
-        <button class="jchip" data-view="monitoring" data-step="s-sysmon"><b>Sysmon</b></button>
-        <button class="jchip" data-view="monitoring" data-step="s-indexes">Port <b>9997</b></button>
-        <button class="jchip" data-view="directory" data-step="s-promote">Promote <b>DC</b></button>
-        <button class="jchip" data-view="directory" data-step="s-ou"><b>OUs</b></button>
+        <button class="jchip" data-view="directory" data-step="s-promote"><b>Active Directory</b> Administration</button>
+        <button class="jchip" data-view="directory" data-step="s-users"><b>User Account</b> Management</button>
+        <button class="jchip" data-view="hardening" data-step="s-logonhours"><b>Group Policy</b> (GPO)</button>
+        <button class="jchip" data-view="directory" data-step="s-adds"><b>Windows Server</b> 2022</button>
         <button class="jchip" data-view="directory" data-step="s-dns"><b>DNS</b></button>
-        <button class="jchip" data-view="directory" data-step="s-join">Join <b>domain</b></button>
-        <button class="jchip" data-view="validation" data-step="s-crowbar"><b>Crowbar</b> brute force</button>
-        <button class="jchip" data-view="validation" data-step="s-4625">Event <b>4625</b></button>
-        <button class="jchip" data-view="validation" data-step="s-4624">Event <b>4624</b></button>
-        <button class="jchip" data-view="validation" data-step="s-atomic"><b>Atomic Red</b></button>
-        <button class="jchip" data-view="validation" data-step="s-gap">Visibility <b>gap</b></button>
-        <button class="jchip" data-view="hardening" data-step="s-groups"><b>Security groups</b></button>
-        <button class="jchip" data-view="hardening" data-step="s-logonhours"><b>Logon hours</b></button>
-        <button class="jchip" data-view="hardening" data-step="s-expire"><b>Account expiry</b></button>
-        <button class="jchip" data-view="troubleshooting" data-step="s-lockout"><b>Lockout</b></button>
-        <button class="jchip" data-view="troubleshooting" data-step="s-eventviewer"><b>Event Viewer</b></button>
-        <button class="jchip" data-view="troubleshooting" data-step="s-permissions"><b>HR permissions</b></button>
-        <button class="jchip" data-view="troubleshooting" data-step="s-trust"><b>Trust relationship</b></button>
+        <button class="jchip" data-view="troubleshooting" data-step="s-lockout"><b>Password Resets</b> &amp; Unlocks</button>
+        <button class="jchip" data-view="troubleshooting" data-step="s-permissions"><b>NTFS Permissions</b></button>
+        <button class="jchip" data-view="hardening" data-step="s-groups"><b>Security Groups</b> &amp; RBAC</button>
+        <button class="jchip" data-view="troubleshooting" data-step="s-eventviewer"><b>Troubleshooting</b> &amp; IR</button>
+        <button class="jchip" data-view="validation" data-step="s-crowbar"><b>RDP</b></button>
+        <button class="jchip" data-view="monitoring" data-step="s-splunk"><b>SIEM</b> / Splunk</button>
+        <button class="jchip" data-view="validation" data-step="s-4625"><b>Log Analysis</b></button>
+        <button class="jchip" data-view="monitoring" data-step="s-sysmon"><b>Endpoint Monitoring</b></button>
+        <button class="jchip" data-view="validation" data-step="s-atomic"><b>MITRE ATT&amp;CK</b></button>
+        <button class="jchip" data-view="hardening" data-step="s-expire"><b>Account Lifecycle</b></button>
+        <button class="jchip" data-view="network" data-step="s-netplan"><b>TCP/IP</b> &amp; Static IP</button>
+        <button class="jchip" data-view="network" data-step="s-vms"><b>Virtualization</b></button>
+        <button class="jchip" data-view="monitoring" data-step="s-splunk"><b>Linux</b> (Ubuntu)</button>
+        <button class="jchip" data-view="network" data-step="s-hash"><b>PowerShell</b></button>
+        <button class="jchip" data-view="troubleshooting" data-step="s-trust"><b>Help Desk</b> / IT Support</button>
       </div>
     </div>
 
@@ -297,10 +353,10 @@ html{scroll-behavior:smooth}
       <div class="phaselist" id="phaselist">
         <button class="prow" data-view="network"><span class="pn">01</span><span><b>Design &amp; Network</b><small>Diagram, VMs, NAT network, static IPs, shared storage</small></span><span class="go">→</span></button>
         <button class="prow" data-view="monitoring"><span class="pn">02</span><span><b>Splunk &amp; Sysmon</b><small>SIEM install, Universal Forwarder + Sysmon on every Windows host, logs on :9997</small></span><span class="go">→</span></button>
-        <button class="prow" data-view="directory"><span class="pn">03</span><span><b>Active Directory</b><small>Promote the DC, build OUs, create users, set DNS, join the client</small></span><span class="go">→</span></button>
+        <button class="prow core" data-view="directory"><span class="pn">03</span><span><b>Active Directory <span class="corebadge">★ Core skill</span></b><small>Promote the DC, build OUs, create &amp; manage users, set DNS, join the client</small></span><span class="go">→</span></button>
         <button class="prow" data-view="validation"><span class="pn">04</span><span><b>Validation &amp; Atomic Red</b><small>Brute-force the client, confirm detection in Splunk, map techniques to MITRE ATT&amp;CK</small></span><span class="go">→</span></button>
         <button class="prow" data-view="hardening"><span class="pn">05</span><span><b>Hardening</b><small>Group-based permissions, logon-hour restrictions, automatic account expiration</small></span><span class="go">→</span></button>
-        <button class="prow" data-view="troubleshooting"><span class="pn">06</span><span><b>Troubleshooting</b><small>Lockouts, expired accounts, permission gaps, broken domain trust</small></span><span class="go">→</span></button>
+        <button class="prow core" data-view="troubleshooting"><span class="pn">06</span><span><b>Troubleshooting <span class="corebadge">★ Most in-demand</span></b><small>Lockouts, expired accounts, permission gaps, broken domain trust</small></span><span class="go">→</span></button>
       </div>
     </div>
 
@@ -437,9 +493,13 @@ html{scroll-behavior:smooth}
 <main class="panel" id="directory" role="tabpanel" hidden>
   <div class="wrap narrow">
     <div class="ptitle">
-      <span class="phaseflag">Phase 03</span>
+      <span class="phaseflag">Phase 03 · ★ Core IT skill</span>
       <h2>Active Directory</h2>
-      <p>On the Windows Server 2022 box I stood up the domain the way a real company runs it: promote the controller, organize people into OUs, create users, point DNS at the domain, and join the client.</p>
+      <p>On the Windows Server 2022 box I stood up the domain the way a real company runs it: promote the controller, organize people into OUs, create and manage users, point DNS at the domain, and join the client.</p>
+    </div>
+    <div class="featbanner">
+      <div class="fb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 5 5.6.5-4.2 3.7 1.3 5.5L12 19l-5.1 2.7 1.3-5.5L4 12.5l5.6-.5z"/></svg></div>
+      <div><b>This is the skill almost every IT job asks for.</b><span>Active Directory administration — creating accounts, managing groups, DNS and domain joins — appears in nearly every help-desk and sysadmin posting. Here's me doing it hands-on.</span></div>
     </div>
     <div class="steps">
       <div class="step" id="s-serverip"><span class="snum">01</span><div class="sbody">
@@ -637,9 +697,13 @@ Trying 192.168.10.100:3389
 <main class="panel" id="troubleshooting" role="tabpanel" hidden>
   <div class="wrap narrow">
     <div class="ptitle">
-      <span class="phaseflag">Phase 06 · The day job</span>
+      <span class="phaseflag">Phase 06 · ★ The day job</span>
       <h2>Troubleshooting</h2>
       <p>Running a domain means solving the problems employees actually hit. I worked through the most common ones in my simulated environment, step by step — including what to do when the quick fix <em>doesn't</em> hold.</p>
+    </div>
+    <div class="featbanner">
+      <div class="fb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2-2z"/></svg></div>
+      <div><b>This is what the job is, day to day.</b><span>Help-desk and sysadmin roles live here: password resets, unlocks, access requests, and machines that fall off the domain. Each incident below is worked symptom → diagnosis → fix.</span></div>
     </div>
     <div class="steps">
       <div class="step" id="s-lockout"><span class="snum">01</span><div class="sbody">
@@ -698,6 +762,87 @@ Trying 192.168.10.100:3389
   </div>
 </main>
 
+<!-- ============ TOOLS & TAKEAWAYS ============ -->
+<main class="panel" id="takeaways" role="tabpanel" hidden>
+  <div class="wrap">
+    <div class="ptitle">
+      <span class="eyebrow">Summary</span>
+      <h2>Tools, skills &amp; what I took away</h2>
+      <p>Everything I used in this project, the skills it maps to, and what I actually learned building it.</p>
+    </div>
+
+    <div class="ov-sec" style="margin-top:34px">
+      <div class="ov-h">Every tool &amp; technology I used</div>
+      <h3 class="ov-t">The full stack</h3>
+      <div class="toolcats">
+        <div class="toolcard">
+          <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Operating systems &amp; virtualization</h4>
+          <div class="tlist">
+            <span class="tool">Oracle VirtualBox</span><span class="tool">Windows Server 2022</span><span class="tool">Windows 10</span><span class="tool">Ubuntu Server (Linux)</span><span class="tool">Kali Linux</span>
+          </div>
+        </div>
+        <div class="toolcard">
+          <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>Active Directory &amp; Windows admin</h4>
+          <div class="tlist">
+            <span class="tool">AD Domain Services</span><span class="tool">Domain Controller</span><span class="tool">DNS</span><span class="tool">Group Policy (GPO)</span><span class="tool">Organizational Units</span><span class="tool">Security Groups</span><span class="tool">NTFS Permissions</span><span class="tool">ADUC</span><span class="tool">Event Viewer</span><span class="tool">RDP</span>
+          </div>
+        </div>
+        <div class="toolcard">
+          <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>SIEM, logging &amp; detection</h4>
+          <div class="tlist">
+            <span class="tool">Splunk Enterprise</span><span class="tool">Splunk Universal Forwarder</span><span class="tool">Sysmon</span><span class="tool">SPL (Splunk Search)</span><span class="tool">Windows Event Logs</span><span class="tool">inputs.conf</span><span class="tool">MITRE ATT&amp;CK</span>
+          </div>
+        </div>
+        <div class="toolcard">
+          <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg>Networking &amp; command line</h4>
+          <div class="tlist">
+            <span class="tool">NAT networking</span><span class="tool">Static IP</span><span class="tool">Netplan</span><span class="tool">TCP/IP &amp; subnetting</span><span class="tool">PowerShell</span><span class="tool">Linux CLI / Bash</span><span class="tool">Get-FileHash (SHA-256)</span><span class="tool">ping · ipconfig · ip a</span>
+          </div>
+        </div>
+        <div class="toolcard">
+          <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2-2z"/></svg>Offensive testing &amp; validation</h4>
+          <div class="tlist">
+            <span class="tool">Crowbar (RDP brute force)</span><span class="tool">Password wordlists</span><span class="tool">Atomic Red Team</span><span class="tool">Microsoft Defender</span>
+          </div>
+        </div>
+        <div class="toolcard">
+          <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2z"/><path d="M14 3v5h5M8 13h8M8 17h5"/></svg>Practices &amp; concepts</h4>
+          <div class="tlist">
+            <span class="tool">Network diagramming</span><span class="tool">Least privilege / RBAC</span><span class="tool">Account lifecycle</span><span class="tool">Incident troubleshooting</span><span class="tool">Documentation</span><span class="tool">File integrity checks</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ov-sec">
+      <div class="ov-h">Takeaways</div>
+      <h3 class="ov-t">What I learned</h3>
+      <div class="learn">
+        <div class="lrow"><span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg></span><p><b>How Active Directory really works</b>Promoting a domain controller, structuring a company with OUs, and why group-based permissions beat assigning access one user at a time.</p></div>
+        <div class="lrow"><span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h4l2-6 4 12 2-6h4"/></svg></span><p><b>Build logging, then prove it works</b>Standing up a Splunk + Sysmon pipeline taught me not to assume monitoring works — you test it against real activity and confirm the events actually arrive.</p></div>
+        <div class="lrow"><span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H4z"/><path d="M8 20h8M9 16v4M15 16v4"/></svg></span><p><b>Read Windows security events</b>I can tell 4625 (failed logon) from 4624 (success), and recognize a burst of failures at one instant as the signature of a brute-force attack.</p></div>
+        <div class="lrow"><span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span><p><b>Testing defenses reveals blind spots</b>A technique that produces no logs is itself a finding. Atomic Red Team showed me exactly which attacker actions I couldn't yet see, so I know where to build next.</p></div>
+        <div class="lrow"><span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg></span><p><b>Security is about reducing standing access</b>Least privilege, logon-hour restrictions, and automatic account expiration cut risk without anyone having to remember to clean up.</p></div>
+        <div class="lrow"><span class="lk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg></span><p><b>Fix the source, not the symptom</b>A recurring lockout isn't a password problem — Event Viewer finds the real source. Knowing to delete a stale computer object before rejoining saves hours.</p></div>
+      </div>
+    </div>
+
+    <div class="ov-sec">
+      <div class="ov-h">Where this takes me</div>
+      <h3 class="ov-t">Roles this project prepares me for</h3>
+      <div class="roles">
+        <span class="role-pill">IT Support Specialist</span>
+        <span class="role-pill">Help Desk Analyst</span>
+        <span class="role-pill">Junior System Administrator</span>
+        <span class="role-pill">Active Directory Administrator</span>
+        <span class="role-pill">SOC Analyst (Tier 1)</span>
+        <span class="role-pill">Blue Team / Security Analyst</span>
+      </div>
+      <p style="text-align:center;color:var(--muted);font-size:13.5px;margin:22px auto 0;max-width:60ch">The hands-on skills here map directly to the certifications these roles ask for — <strong style="color:var(--fg)">CompTIA A+, Network+, Security+</strong> and <strong style="color:var(--fg)">Microsoft</strong> fundamentals — which are my next step.</p>
+    </div>
+  </div>
+</main>
+
 <footer>
   <div class="wrap">
     <span>Active Directory Project — built &amp; documented by <b>Sukhwinder Singh</b></span>
@@ -713,7 +858,7 @@ Trying 192.168.10.100:3389
 <script>
 (function(){
   var root=document.documentElement;
-  var views=['overview','network','monitoring','directory','validation','hardening','troubleshooting'];
+  var views=['overview','network','monitoring','directory','validation','hardening','troubleshooting','takeaways'];
   var tabs=Array.prototype.slice.call(document.querySelectorAll('.tab'));
 
   /* theme */
