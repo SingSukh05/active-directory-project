@@ -1,0 +1,769 @@
+<meta charset="utf-8">
+<title>Active Directory Project</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: documentation report — centered title over centered tabs, keyword jump index, numbered step walkthroughs. Dark-first, mirrored to light. */
+:root{
+  --bg:#0b0f18; --surface:#121927; --surface-2:#1a2231; --raise:#202a3b;
+  --line:#28334a; --line-2:#394761;
+  --fg:#e8eef8; --muted:#97a4ba; --faint:#6a7a93;
+  --accent:#36d6cb; --accent-ink:#06201f;
+  --blue:#74a2ff;
+  --alert:#ff7a5c; --warn:#f5b949; --ok:#49d884;
+  --shadow:0 20px 50px -28px rgba(0,0,0,.8);
+  --r:14px;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){
+    --bg:#eef1f7; --surface:#ffffff; --surface-2:#f4f7fb; --raise:#ffffff;
+    --line:#dde4f0; --line-2:#c6d1e4;
+    --fg:#101a2b; --muted:#4e5c74; --faint:#86909f;
+    --accent:#0b868b; --accent-ink:#e9fbfa;
+    --blue:#2a5fd0;
+    --alert:#cf4328; --warn:#946505; --ok:#108040;
+    --shadow:0 18px 40px -26px rgba(20,38,72,.4);
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#eef1f7; --surface:#ffffff; --surface-2:#f4f7fb; --raise:#ffffff;
+  --line:#dde4f0; --line-2:#c6d1e4;
+  --fg:#101a2b; --muted:#4e5c74; --faint:#86909f;
+  --accent:#0b868b; --accent-ink:#e9fbfa;
+  --blue:#2a5fd0;
+  --alert:#cf4328; --warn:#946505; --ok:#108040;
+  --shadow:0 18px 40px -26px rgba(20,38,72,.4);
+  color-scheme:light;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);overflow-x:hidden;
+  font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+h1,h2,h3,h4,.d{font-family:"Archivo",system-ui,sans-serif}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+a{color:var(--accent)}
+img{display:block}
+::selection{background:color-mix(in oklab,var(--accent) 38%,transparent)}
+
+.wrap{width:100%;max-width:1080px;margin-inline:auto;
+  padding-left:max(18px,env(safe-area-inset-left,0px));
+  padding-right:max(18px,env(safe-area-inset-right,0px))}
+.narrow{max-width:800px}
+
+/* ---------- header: title above centered tabs ---------- */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;
+  background:color-mix(in oklab,var(--bg) 90%,transparent);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line)}
+.top-in{display:flex;flex-direction:column;align-items:center;gap:10px;padding-block:12px 10px;position:relative}
+.titlewrap{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}
+.titlewrap .kwell{font-family:"JetBrains Mono";font-size:10.5px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:8px}
+.titlewrap .kwell i{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab,var(--accent) 22%,transparent)}
+.titlewrap h1{font-size:clamp(19px,3.3vw,25px);font-weight:800;letter-spacing:-.3px;margin:0;line-height:1.05}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;max-width:100%;padding-bottom:2px}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{font-family:"JetBrains Mono";font-size:11.5px;font-weight:500;letter-spacing:.2px;color:var(--muted);
+  background:transparent;border:1px solid transparent;border-radius:9px;padding:7px 12px;cursor:pointer;white-space:nowrap;transition:.16s}
+.tab:hover{color:var(--fg);background:var(--surface)}
+.tab[aria-selected="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent);font-weight:700}
+.theme-btn{position:absolute;right:max(4px,env(safe-area-inset-right,0px));top:12px;width:36px;height:36px;border-radius:10px;
+  border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;display:grid;place-items:center}
+.theme-btn:hover{color:var(--accent);border-color:var(--line-2)}
+
+/* ---------- panels & sections ---------- */
+.panel[hidden]{display:none!important}
+.panel{padding-block:34px 72px}
+.ptitle{text-align:center;max-width:760px;margin-inline:auto}
+.eyebrow{font-family:"JetBrains Mono";font-size:11px;letter-spacing:2.2px;text-transform:uppercase;color:var(--accent);font-weight:600}
+.ptitle h2{font-size:clamp(25px,4.4vw,38px);font-weight:800;letter-spacing:-.6px;margin:12px 0 0;line-height:1.08;text-wrap:balance}
+.ptitle p{color:var(--muted);margin:14px auto 0;font-size:16px;max-width:64ch}
+.phaseflag{display:inline-flex;align-items:center;gap:8px;font-family:"JetBrains Mono";font-size:11px;
+  color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:4px 12px;margin-bottom:4px}
+
+/* ---------- steps ---------- */
+.steps{margin-top:34px;display:flex;flex-direction:column;gap:26px}
+.step{display:grid;grid-template-columns:52px 1fr;gap:18px;scroll-margin-top:150px}
+.snum{font-family:"JetBrains Mono";font-weight:700;font-size:14px;color:var(--accent);
+  border:1px solid var(--line-2);border-radius:11px;height:46px;display:grid;place-items:center;
+  background:var(--surface);position:sticky;top:150px}
+.sbody{min-width:0}
+.sh{font-size:19px;font-weight:700;margin:6px 0 6px;letter-spacing:-.2px}
+.sbody>p{color:var(--muted);font-size:15px;margin:0 0 14px;max-width:68ch}
+.sbody>p strong{color:var(--fg);font-weight:600}
+.sbody code{font-family:"JetBrains Mono";font-size:12.5px;background:var(--surface-2);padding:1px 6px;border-radius:5px;color:var(--fg)}
+
+/* screenshots */
+.shot{margin:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface-2);cursor:zoom-in;transition:.18s;min-width:0}
+.shot:hover{border-color:var(--accent);box-shadow:var(--shadow);transform:translateY(-2px)}
+.shot .imgbox{background:#05080e;display:grid;place-items:center;overflow:hidden}
+.shot img{width:100%;height:auto}
+.shot figcaption{padding:11px 14px;font-size:12.5px;color:var(--muted);display:flex;gap:9px;align-items:baseline;line-height:1.5}
+.shot figcaption .tag{font-family:"JetBrains Mono";font-size:10px;color:var(--accent);border:1px solid var(--line-2);border-radius:6px;padding:1px 6px;flex:none;letter-spacing:.3px}
+.shotrow{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+
+/* callouts */
+.call{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;background:var(--surface);padding:15px 17px;margin:14px 0 0}
+.call.gap{border-left-color:var(--warn)} .call.gap .ch{color:var(--warn)}
+.call.win{border-left-color:var(--ok)} .call.win .ch{color:var(--ok)}
+.call .ch{font-family:"Archivo";font-weight:700;font-size:15px;color:var(--accent);margin:0 0 4px}
+.call p{margin:0;font-size:14px;color:var(--muted)}
+.call p strong{color:var(--fg)}
+
+/* ---------- overview specifics ---------- */
+.lede{font-size:clamp(17px,2.4vw,20px);color:var(--fg);max-width:70ch;margin:0 auto;text-align:center;line-height:1.55}
+.lede b{color:var(--accent);font-weight:600}
+.bigdiagram{margin-top:30px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.bigdiagram .imgbox{background:#0c0e0a;cursor:zoom-in}
+.bigdiagram img{width:100%;height:auto;max-height:560px;object-fit:contain}
+.bigdiagram .cap{padding:13px 18px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);text-align:center}
+
+.jump{margin-top:34px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2);padding:20px}
+.jump h3{font-size:13px;font-family:"JetBrains Mono";letter-spacing:.6px;text-transform:uppercase;color:var(--faint);margin:0 0 14px;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+.jchip{font-family:"JetBrains Mono";font-size:12px;border:1px solid var(--line-2);border-radius:999px;padding:7px 13px;color:var(--fg);
+  background:var(--surface);cursor:pointer;transition:.15s;white-space:nowrap}
+.jchip:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.jchip b{color:var(--accent);font-weight:700}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:30px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.stat{background:var(--surface);padding:18px 16px;text-align:center}
+.stat b{font-family:"Archivo";font-weight:800;font-size:clamp(22px,3.6vw,30px);display:block;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.stat .c1{color:var(--accent)} .stat .c2{color:var(--warn)} .stat .c3{color:var(--ok)}
+.stat span{font-size:11.5px;color:var(--muted);display:block;margin-top:4px}
+
+.spec{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface);margin-top:20px}
+.spec-row{display:grid;grid-template-columns:1.2fr 1.1fr .9fr 1.5fr;gap:12px;padding:13px 18px;border-top:1px solid var(--line);font-size:13.5px;align-items:center}
+.spec-row:first-child{border-top:0;background:var(--surface-2);font-family:"JetBrains Mono";font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--faint)}
+.spec-row .host{font-weight:600;display:flex;align-items:center;gap:9px}
+.spec-row .host i{width:9px;height:9px;border-radius:2px;flex:none}
+.ip{font-family:"JetBrains Mono";font-size:12.5px;color:var(--accent);font-variant-numeric:tabular-nums}
+.role,.osname{color:var(--muted);font-size:12.5px}
+
+.phaselist{margin-top:30px;display:grid;gap:11px}
+.prow{display:grid;grid-template-columns:auto 1fr auto;gap:15px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px 16px;cursor:pointer;transition:.15s;text-align:left}
+.prow:hover{border-color:var(--accent);transform:translateX(3px)}
+.prow .pn{font-family:"JetBrains Mono";font-weight:700;font-size:12px;color:var(--accent-ink);background:var(--accent);width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none}
+.prow b{font-family:"Archivo";font-size:15.5px;display:block}
+.prow small{color:var(--muted);font-size:13px}
+.prow .go{color:var(--faint);font-size:18px}
+
+.tags{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-top:20px}
+.stag{font-family:"JetBrains Mono";font-size:11.5px;border:1px solid var(--line-2);border-radius:999px;padding:7px 13px;color:var(--muted);background:var(--surface)}
+.stag b{color:var(--accent);font-weight:700}
+
+.ov-sec{margin-top:52px}
+.ov-h{text-align:center;font-size:12px;font-family:"JetBrains Mono";letter-spacing:1.6px;text-transform:uppercase;color:var(--faint)}
+.ov-sec h3.ov-t{text-align:center;font-size:clamp(20px,3.3vw,27px);font-weight:800;margin:8px 0 0;letter-spacing:-.4px}
+
+/* event legend */
+.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0 0}
+.ev{border:1px solid var(--line);border-radius:12px;padding:13px 15px;background:var(--surface-2)}
+.ev b{font-family:"JetBrains Mono";font-size:17px;display:block} .ev.f b{color:var(--alert)} .ev.s b{color:var(--ok)} .ev.l b{color:var(--warn)}
+.ev span{font-size:12px;color:var(--muted)}
+
+/* mitre chips */
+.mitre{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+.mchip{display:inline-flex;flex-direction:column;gap:1px;border:1px solid var(--line-2);border-radius:10px;padding:9px 13px;background:var(--surface)}
+.mchip .id{font-family:"JetBrains Mono";font-size:12px;font-weight:700;color:var(--blue)}
+.mchip .nm{font-size:11.5px;color:var(--muted)}
+
+/* terminal */
+.term{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#05080e;margin:0 0 14px}
+.term .tt{display:flex;align-items:center;gap:7px;padding:8px 13px;border-bottom:1px solid #1b2436;background:#0c1220}
+.term .tt i{width:9px;height:9px;border-radius:50%;background:#2a3346}
+.term .tt .nm{margin-left:7px;font-family:"JetBrains Mono";font-size:11px;color:#6a7a93}
+.term pre{margin:0;padding:14px 15px;overflow-x:auto;font-family:"JetBrains Mono";font-size:12px;line-height:1.7;color:#cbd6e8}
+.term pre .pr{color:var(--accent)} .term pre .ok{color:var(--ok)} .term pre .al{color:var(--alert)} .term pre .cm{color:#5f6e86} .term pre .hl{color:var(--warn)}
+
+footer{border-top:1px solid var(--line);margin-top:30px;padding-block:28px 46px;color:var(--faint);font-size:12.5px;text-align:center}
+footer b{color:var(--fg)}
+footer .ft-mono{font-family:"JetBrains Mono";margin-top:8px;display:block;font-size:11px}
+
+/* lightbox */
+#lb{position:fixed;inset:0;z-index:100;background:rgba(3,6,12,.93);backdrop-filter:blur(6px);display:none;place-items:center;padding:22px;cursor:zoom-out}
+#lb.on{display:grid}
+#lb figure{margin:0;max-width:1150px;max-height:100%;display:flex;flex-direction:column;gap:12px}
+#lb img{max-width:100%;max-height:84vh;object-fit:contain;border-radius:10px;border:1px solid var(--line-2)}
+#lb figcaption{color:#cbd6e8;font-size:13.5px;text-align:center}
+#lb .x{position:fixed;top:max(16px,env(safe-area-inset-top,0px));right:20px;width:42px;height:42px;border-radius:11px;border:1px solid #39465f;background:#121927;color:#e8eef8;cursor:pointer;display:grid;place-items:center;font-size:19px}
+
+@media (max-width:820px){
+  .spec-row{grid-template-columns:1fr 1fr;row-gap:3px}
+  .spec-row .role{grid-column:1/-1} .spec-row:first-child{display:none}
+  .stats{grid-template-columns:1fr 1fr}
+  .legend{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  .shotrow{grid-template-columns:1fr}
+  .step{grid-template-columns:40px 1fr;gap:12px}
+  .snum{height:40px;font-size:12px;position:static}
+  .prow{grid-template-columns:auto 1fr;}.prow .go{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<header class="top">
+  <div class="wrap top-in">
+    <div class="titlewrap">
+      <span class="kwell"><i></i>HOME LAB · BLUE TEAM · SYSTEM ADMINISTRATION</span>
+      <h1>Active Directory Project</h1>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Project phases">
+      <button class="tab" role="tab" data-view="overview">Overview</button>
+      <button class="tab" role="tab" data-view="network">Design &amp; Network</button>
+      <button class="tab" role="tab" data-view="monitoring">Splunk &amp; Sysmon</button>
+      <button class="tab" role="tab" data-view="directory">Active Directory</button>
+      <button class="tab" role="tab" data-view="validation">Validation &amp; Atomic Red</button>
+      <button class="tab" role="tab" data-view="hardening">Hardening</button>
+      <button class="tab" role="tab" data-view="troubleshooting">Troubleshooting</button>
+    </nav>
+    <button class="theme-btn" id="theme" title="Toggle theme" aria-label="Toggle light / dark">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ============ OVERVIEW ============ -->
+<main class="panel" id="overview" role="tabpanel">
+  <div class="wrap">
+    <div class="ptitle">
+      <span class="eyebrow">Project Report</span>
+      <h2>I designed, built, and ran a full Active Directory environment — then troubleshooted it end to end.</h2>
+    </div>
+    <p class="lede" style="margin-top:22px">A complete enterprise-style domain on four virtual machines. I started from a <b>network diagram</b>, built the <b>networking</b> and a <b>Splunk + Sysmon</b> monitoring pipeline, stood up <b>Active Directory</b> with OUs, users and groups, then used a controlled <b>brute-force attack and Atomic Red Team</b> to confirm my logging actually captured attacker activity — and finally <b>hardened the accounts and resolved the real-world issues</b> an administrator deals with every day.</p>
+
+    <div class="bigdiagram">
+      <figure class="shot" data-cap="My Network Structure Framework — the whole lab planned on paper before I built anything. Splunk server (192.168.10.10), Active Directory (192.168.10.7), a Windows 10 client, and a Kali attacker (192.168.10.250), all connected through one router and switch." style="border:0;border-radius:0;margin:0">
+        <div class="imgbox"><img src="screenshots/img-001-000.jpg" alt="Hand-drawn network diagram of the lab" loading="lazy"></div>
+      </figure>
+      <div class="cap">My hand-drawn <strong style="color:var(--fg)">Network Structure Framework</strong> — I always diagram a build first. Tap to enlarge.</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b class="c1">4</b><span>Virtual machines</span></div>
+      <div class="stat"><b class="c1">7</b><span>Project phases</span></div>
+      <div class="stat"><b class="c2">20×</b><span>Event 4625 captured</span></div>
+      <div class="stat"><b class="c3">4</b><span>Incidents resolved</span></div>
+    </div>
+
+    <div class="jump">
+      <h3>Jump straight to any step</h3>
+      <div class="chips" id="jumpchips">
+        <button class="jchip" data-view="network" data-step="s-nat"><b>NAT</b> network</button>
+        <button class="jchip" data-view="network" data-step="s-netplan"><b>Netplan</b> static IP</button>
+        <button class="jchip" data-view="monitoring" data-step="s-splunk"><b>Splunk</b> install</button>
+        <button class="jchip" data-view="monitoring" data-step="s-uf"><b>Universal</b> Forwarder</button>
+        <button class="jchip" data-view="monitoring" data-step="s-sysmon"><b>Sysmon</b></button>
+        <button class="jchip" data-view="monitoring" data-step="s-indexes">Port <b>9997</b></button>
+        <button class="jchip" data-view="directory" data-step="s-promote">Promote <b>DC</b></button>
+        <button class="jchip" data-view="directory" data-step="s-ou"><b>OUs</b></button>
+        <button class="jchip" data-view="directory" data-step="s-dns"><b>DNS</b></button>
+        <button class="jchip" data-view="directory" data-step="s-join">Join <b>domain</b></button>
+        <button class="jchip" data-view="validation" data-step="s-crowbar"><b>Crowbar</b> brute force</button>
+        <button class="jchip" data-view="validation" data-step="s-4625">Event <b>4625</b></button>
+        <button class="jchip" data-view="validation" data-step="s-4624">Event <b>4624</b></button>
+        <button class="jchip" data-view="validation" data-step="s-atomic"><b>Atomic Red</b></button>
+        <button class="jchip" data-view="validation" data-step="s-gap">Visibility <b>gap</b></button>
+        <button class="jchip" data-view="hardening" data-step="s-groups"><b>Security groups</b></button>
+        <button class="jchip" data-view="hardening" data-step="s-logonhours"><b>Logon hours</b></button>
+        <button class="jchip" data-view="hardening" data-step="s-expire"><b>Account expiry</b></button>
+        <button class="jchip" data-view="troubleshooting" data-step="s-lockout"><b>Lockout</b></button>
+        <button class="jchip" data-view="troubleshooting" data-step="s-eventviewer"><b>Event Viewer</b></button>
+        <button class="jchip" data-view="troubleshooting" data-step="s-permissions"><b>HR permissions</b></button>
+        <button class="jchip" data-view="troubleshooting" data-step="s-trust"><b>Trust relationship</b></button>
+      </div>
+    </div>
+
+    <div class="ov-sec">
+      <div class="ov-h">The Environment</div>
+      <h3 class="ov-t">Four machines, one /24 network</h3>
+      <div class="spec">
+        <div class="spec-row"><span>Host</span><span>Operating system</span><span>Address</span><span>Role</span></div>
+        <div class="spec-row"><span class="host"><i style="background:var(--accent)"></i>Splunk</span><span class="osname">Ubuntu Server</span><span class="ip">192.168.10.10</span><span class="role">SIEM — indexer (:9997), web console (:8000)</span></div>
+        <div class="spec-row"><span class="host"><i style="background:var(--blue)"></i>Active Directory</span><span class="osname">Windows Server 2022</span><span class="ip">192.168.10.7</span><span class="role">Domain Controller · DNS · Group Policy</span></div>
+        <div class="spec-row"><span class="host"><i style="background:var(--warn)"></i>Windows 10 client</span><span class="osname">Windows 10</span><span class="ip">.100 (static)</span><span class="role">Domain-joined workstation · forwarder + Sysmon</span></div>
+        <div class="spec-row"><span class="host"><i style="background:var(--alert)"></i>Kali</span><span class="osname">Kali Linux</span><span class="ip">192.168.10.250</span><span class="role">Controlled attacker — Crowbar &amp; Atomic Red Team</span></div>
+      </div>
+    </div>
+
+    <div class="ov-sec">
+      <div class="ov-h">The Build, Phase by Phase</div>
+      <h3 class="ov-t">How the project is organized</h3>
+      <div class="phaselist" id="phaselist">
+        <button class="prow" data-view="network"><span class="pn">01</span><span><b>Design &amp; Network</b><small>Diagram, VMs, NAT network, static IPs, shared storage</small></span><span class="go">→</span></button>
+        <button class="prow" data-view="monitoring"><span class="pn">02</span><span><b>Splunk &amp; Sysmon</b><small>SIEM install, Universal Forwarder + Sysmon on every Windows host, logs on :9997</small></span><span class="go">→</span></button>
+        <button class="prow" data-view="directory"><span class="pn">03</span><span><b>Active Directory</b><small>Promote the DC, build OUs, create users, set DNS, join the client</small></span><span class="go">→</span></button>
+        <button class="prow" data-view="validation"><span class="pn">04</span><span><b>Validation &amp; Atomic Red</b><small>Brute-force the client, confirm detection in Splunk, map techniques to MITRE ATT&amp;CK</small></span><span class="go">→</span></button>
+        <button class="prow" data-view="hardening"><span class="pn">05</span><span><b>Hardening</b><small>Group-based permissions, logon-hour restrictions, automatic account expiration</small></span><span class="go">→</span></button>
+        <button class="prow" data-view="troubleshooting"><span class="pn">06</span><span><b>Troubleshooting</b><small>Lockouts, expired accounts, permission gaps, broken domain trust</small></span><span class="go">→</span></button>
+      </div>
+    </div>
+
+    <div class="ov-sec">
+      <div class="ov-h">Skills demonstrated</div>
+      <div class="tags">
+        <span class="stag"><b>Virtualization</b> VirtualBox</span>
+        <span class="stag"><b>Networking</b> NAT · static IP · Netplan · DNS</span>
+        <span class="stag"><b>Active Directory</b> DS · OUs · groups · GPO</span>
+        <span class="stag"><b>SIEM</b> Splunk · forwarders · SPL</span>
+        <span class="stag"><b>Endpoint logging</b> Sysmon · Windows Events</span>
+        <span class="stag"><b>Adversary emulation</b> Crowbar · Atomic Red · MITRE</span>
+        <span class="stag"><b>IT support</b> lockouts · permissions · domain trust</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ DESIGN & NETWORK ============ -->
+<main class="panel" id="network" role="tabpanel" hidden>
+  <div class="wrap narrow">
+    <div class="ptitle">
+      <span class="phaseflag">Phase 01</span>
+      <h2>Design &amp; Network</h2>
+      <p>Before touching a single VM I drew the whole network, then built it: four machines on one NAT network with static addressing, so the lab behaves like a real corporate LAN.</p>
+    </div>
+    <div class="steps">
+      <div class="step" id="s-diagram"><span class="snum">01</span><div class="sbody">
+        <h3 class="sh">Started with a network diagram</h3>
+        <p>I planned the <strong>Network Structure Framework</strong> on paper first — every host, its IP, and how traffic flows through the router and switch. Diagramming first is a habit: it forces me to understand the environment and how I'd secure it before I build it.</p>
+        <figure class="shot" data-cap="My hand-drawn diagram: Splunk server .10, Active Directory .7, Windows 10 client, and Kali attacker .250, behind a router and switch — plus the host hardware I needed (16 GB RAM, 250 GB disk)."><div class="imgbox"><img src="screenshots/img-001-000.jpg" alt="Hand-drawn network diagram" loading="lazy"></div><figcaption><span class="tag">DIAGRAM</span>The lab planned out before building.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-hash"><span class="snum">02</span><div class="sbody">
+        <h3 class="sh">Verified every installer before trusting it</h3>
+        <p>I checked the <strong>SHA-256 hash</strong> of the VirtualBox download against the published value, confirming the file was the genuine, untampered installer before I ran it.</p>
+        <figure class="shot" data-cap="Running Get-FileHash in PowerShell and matching the SHA-256 to the official hash — integrity checking as a habit."><div class="imgbox"><img src="screenshots/img-002-001.jpg" alt="Get-FileHash output" loading="lazy"></div><figcaption><span class="tag">INTEGRITY</span>Hash check on the VirtualBox installer.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-vms"><span class="snum">03</span><div class="sbody">
+        <h3 class="sh">Set up the four VMs on one network</h3>
+        <p>I provisioned all four machines in VirtualBox and switched each one to the same <strong>NAT Network</strong> so they can talk to each other under one structure — and so I can snapshot and roll back freely while testing.</p>
+        <figure class="shot" data-cap="The four VMs in VirtualBox Manager — Windows 10, Kali, the Windows Server 2022 domain controller, and the Ubuntu Splunk box."><div class="imgbox"><img src="screenshots/img-003-002.jpg" alt="VirtualBox Manager with four VMs" loading="lazy"></div><figcaption><span class="tag">VMs</span>The full lab fleet in VirtualBox.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-nat"><span class="snum">04</span><div class="sbody">
+        <h3 class="sh">Created the NAT network</h3>
+        <p>I built a NAT network named <strong>AD Project</strong> on <code>192.168.10.0/24</code>, so every server sits on the same subnet exactly like the diagram.</p>
+        <figure class="shot" data-cap="The AD Project NAT network at 192.168.10.0/24 — the single subnet every machine shares."><div class="imgbox"><img src="screenshots/img-004-003.jpg" alt="VirtualBox NAT network settings" loading="lazy"></div><figcaption><span class="tag">NAT</span>One shared subnet for all four hosts.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-netplan"><span class="snum">05</span><div class="sbody">
+        <h3 class="sh">Gave the Splunk server a static IP with Netplan</h3>
+        <p>On the Ubuntu box I edited the <code>00-installer-config.yaml</code> file in the Netplan folder to set a <strong>static IP</strong>, applied it, and confirmed with <code>ip a</code> that the address was fixed and the internet was reachable (Google pinging).</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="My Netplan 00-installer-config.yaml, setting the Splunk server to a static address instead of DHCP."><div class="imgbox"><img src="screenshots/img-004-004.jpg" alt="Netplan YAML config" loading="lazy"></div><figcaption><span class="tag">NETPLAN</span>Static IP configuration.</figcaption></figure>
+          <figure class="shot" data-cap="After applying Netplan: ip a shows the static address, and Google is pinging successfully."><div class="imgbox"><img src="screenshots/img-005-006.jpg" alt="ip a output with static IP and ping" loading="lazy"></div><figcaption><span class="tag">VERIFY</span>Static IP applied, connectivity confirmed.</figcaption></figure>
+        </div>
+      </div></div>
+
+      <div class="step" id="s-share"><span class="snum">06</span><div class="sbody">
+        <h3 class="sh">Set up a shared folder for the server</h3>
+        <p>I created the <code>sukhwinder05</code> user and a share directory, then <strong>mounted my shared folder</strong> to it so I could move installation files onto the server cleanly. The mount showing green means it attached successfully.</p>
+        <figure class="shot" data-cap="Created the sukhwinder05 user and a share directory, then mounted the shared folder — it glows green to confirm the mount worked."><div class="imgbox"><img src="screenshots/img-006-009.jpg" alt="Shared folder mounted, shown green" loading="lazy"></div><figcaption><span class="tag">STORAGE</span>Shared folder mounted on the server.</figcaption></figure>
+      </div></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ MONITORING ============ -->
+<main class="panel" id="monitoring" role="tabpanel" hidden>
+  <div class="wrap narrow">
+    <div class="ptitle">
+      <span class="phaseflag">Phase 02</span>
+      <h2>Splunk &amp; Sysmon</h2>
+      <p>I built the monitoring pipeline: Splunk as the SIEM on Ubuntu, and a Universal Forwarder plus Sysmon on every Windows host, shipping rich endpoint telemetry back to the indexer on port 9997.</p>
+    </div>
+    <div class="steps">
+      <div class="step" id="s-splunk"><span class="snum">01</span><div class="sbody">
+        <h3 class="sh">Installed Splunk on the Ubuntu server</h3>
+        <p>I installed <strong>Splunk Enterprise</strong> under <code>/opt/splunk</code> on the Ubuntu box — this is the SIEM that ingests and indexes everything the lab generates.</p>
+        <figure class="shot" data-cap="Splunk installed under /opt/splunk, running as my own service account on the Ubuntu server."><div class="imgbox"><img src="screenshots/img-007-010.jpg" alt="Terminal listing /opt/splunk" loading="lazy"></div><figcaption><span class="tag">SPLUNK</span>Splunk Enterprise installed.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-targetip"><span class="snum">02</span><div class="sbody">
+        <h3 class="sh">Set the Windows client to a static IP</h3>
+        <p>I changed the Windows 10 client's address to a <strong>static IP</strong> so it wouldn't collide with anything and would stay predictable for forwarding and, later, the attack.</p>
+        <figure class="shot" data-cap="Changing the Windows 10 target to a static IP and preparing to install the forwarder and Sysmon."><div class="imgbox"><img src="screenshots/img-009-014.jpg" alt="Windows static IP settings" loading="lazy"></div><figcaption><span class="tag">STATIC IP</span>Fixed address on the client.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-sysmon"><span class="snum">03</span><div class="sbody">
+        <h3 class="sh">Installed Sysmon on the client</h3>
+        <p>I installed <strong>Sysmon</strong> on the Windows 10 machine for detailed endpoint logging — process creation, network connections, and more — the raw material good detections are built from. I also prepared the local <code>inputs.conf</code> to tell the forwarder what to collect.</p>
+        <figure class="shot" data-cap="Sysmon installed on the Windows 10 client, with the local inputs.conf controlling what gets forwarded."><div class="imgbox"><img src="screenshots/img-010-016.jpg" alt="Sysmon installed and inputs.conf" loading="lazy"></div><figcaption><span class="tag">SYSMON</span>Endpoint logging on the client.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-uf"><span class="snum">04</span><div class="sbody">
+        <h3 class="sh">Pointed the Universal Forwarder at the index</h3>
+        <p>I installed the <strong>Splunk Universal Forwarder</strong> on the client and added the endpoint to the index that Splunk ingests, so the Windows 10 logs flow into the SIEM.</p>
+        <figure class="shot" data-cap="Adding the Windows 10 endpoint to the index the forwarder ships to."><div class="imgbox"><img src="screenshots/img-011-017.jpg" alt="Splunk index / forwarding setup" loading="lazy"></div><figcaption><span class="tag">FORWARDER</span>Client added to the index.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-indexes"><span class="snum">05</span><div class="sbody">
+        <h3 class="sh">Confirmed data arriving on port 9997</h3>
+        <p>Back in Splunk I verified the <strong>indexes were receiving data on port 9997</strong> — the dedicated receiving port — proving the forwarding pipeline was live end to end.</p>
+        <figure class="shot" data-cap="Indexes in Splunk receiving data on port 9997 from the forwarder."><div class="imgbox"><img src="screenshots/img-012-019.jpg" alt="Splunk indexes receiving on 9997" loading="lazy"></div><figcaption><span class="tag">:9997</span>Data flowing into the SIEM.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-server-fwd"><span class="snum">06</span><div class="sbody">
+        <h3 class="sh">Repeated it on the Windows Server</h3>
+        <p>I did the same on the <strong>Windows Server 2022</strong> domain controller — set it to <code>192.168.10.7</code> and installed Sysmon — so the DC's activity is monitored too, not just the client.</p>
+        <figure class="shot" data-cap="Setting the Windows Server to 192.168.10.7 and installing Sysmon so the DC is monitored as well."><div class="imgbox"><img src="screenshots/img-015-025.jpg" alt="Windows Server static IP and Sysmon" loading="lazy"></div><figcaption><span class="tag">DC</span>Sysmon on the domain controller.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-inputsconf"><span class="snum">07</span><div class="sbody">
+        <h3 class="sh">Tuned inputs.conf — the right way</h3>
+        <p>I added the Universal Forwarder on the server and configured a <strong>local copy of <code>inputs.conf</code></strong> for both machines. I deliberately avoided editing the <code>inputs.conf</code> in the default folder, because changing defaults can break the app — a local override is the safe, supportable approach.</p>
+        <figure class="shot" data-cap="Universal Forwarder added on the server, with a local inputs.conf (never editing the default copy)."><div class="imgbox"><img src="screenshots/img-016-027.jpg" alt="inputs.conf configuration" loading="lazy"></div><figcaption><span class="tag">inputs.conf</span>Local override, defaults left intact.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-permissions-fwd"><span class="snum">08</span><div class="sbody">
+        <h3 class="sh">Fixed the forwarder's permissions, and verified it's running</h3>
+        <p>The forwarder service ran as the low-privilege <code>NT</code> account, which couldn't read every log I needed — so I <strong>changed the service logon identity</strong> to collect the full event set. Then I confirmed Sysmon and the forwarder were both running on both machines.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="Sysmon and the Splunk forwarder both running on the host after fixing the service account."><div class="imgbox"><img src="screenshots/img-017-028.jpg" alt="Services running" loading="lazy"></div><figcaption><span class="tag">SERVICES</span>Forwarder + Sysmon running.</figcaption></figure>
+          <figure class="shot" data-cap="Sysmon fully installed on both the target and the AD server, detecting the activity defined in the .conf."><div class="imgbox"><img src="screenshots/img-018-030.jpg" alt="Sysmon on both machines" loading="lazy"></div><figcaption><span class="tag">BOTH HOSTS</span>Full coverage, client + server.</figcaption></figure>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ ACTIVE DIRECTORY ============ -->
+<main class="panel" id="directory" role="tabpanel" hidden>
+  <div class="wrap narrow">
+    <div class="ptitle">
+      <span class="phaseflag">Phase 03</span>
+      <h2>Active Directory</h2>
+      <p>On the Windows Server 2022 box I stood up the domain the way a real company runs it: promote the controller, organize people into OUs, create users, point DNS at the domain, and join the client.</p>
+    </div>
+    <div class="steps">
+      <div class="step" id="s-serverip"><span class="snum">01</span><div class="sbody">
+        <h3 class="sh">Set a static IP for the AD server</h3>
+        <p>I gave the Windows Server 2022 machine a static address and confirmed it could reach both Google and the Splunk server, so the future domain controller had reliable connectivity.</p>
+        <figure class="shot" data-cap="Setting the static IP on the Windows Server 2022 box that will host Active Directory."><div class="imgbox"><img src="screenshots/img-020-033.jpg" alt="Windows Server static IP" loading="lazy"></div><figcaption><span class="tag">STATIC IP</span>Addressing the AD server.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-adds"><span class="snum">02</span><div class="sbody">
+        <h3 class="sh">Installed AD Domain Services</h3>
+        <p>I installed <strong>Active Directory Domain Services</strong> along with role-based access control services — the roles that turn a plain server into a domain controller.</p>
+        <figure class="shot" data-cap="Installing Active Directory Domain Services and role-based access control services."><div class="imgbox"><img src="screenshots/img-021-036.jpg" alt="Installing AD DS role" loading="lazy"></div><figcaption><span class="tag">AD DS</span>Adding the directory role.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-promote"><span class="snum">03</span><div class="sbody">
+        <h3 class="sh">Promoted it to a domain controller</h3>
+        <p>I created the root domain (a <code>.local</code> domain) and <strong>promoted the server to a domain controller</strong>. Logging in as the domain's admin confirmed the promotion succeeded — now I could start creating users and managing the domain.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="Setting the root domain name during promotion."><div class="imgbox"><img src="screenshots/img-022-037.jpg" alt="Root domain name" loading="lazy"></div><figcaption><span class="tag">DOMAIN</span>Root domain created.</figcaption></figure>
+          <figure class="shot" data-cap="Signed in with the domain admin — the controller is promoted and ready to manage users."><div class="imgbox"><img src="screenshots/img-023-038.jpg" alt="Domain admin login confirming promotion" loading="lazy"></div><figcaption><span class="tag">DC</span>Promotion confirmed.</figcaption></figure>
+        </div>
+      </div></div>
+
+      <div class="step" id="s-ou"><span class="snum">04</span><div class="sbody">
+        <h3 class="sh">Built Organizational Units</h3>
+        <p>I created <strong>Organizational Units</strong> to organize the company into departments — IT, HR, Employees, and so on — the structure that makes a directory manageable and lets policy target the right people.</p>
+        <figure class="shot" data-cap="Creating Organizational Units to separate the company into IT, HR, Employees and other departments."><div class="imgbox"><img src="screenshots/img-024-039.jpg" alt="Creating an OU" loading="lazy"></div><figcaption><span class="tag">OU</span>Departmental structure.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-users"><span class="snum">05</span><div class="sbody">
+        <h3 class="sh">Created users in the right OUs</h3>
+        <p>I created domain users and placed them in the correct departments — for example a new user, <strong>Jenny Smith</strong>, added to IT, and another user added to HR.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="Creating a new domain user, Jenny Smith, and adding her to the IT OU."><div class="imgbox"><img src="screenshots/img-025-040.jpg" alt="Creating user Jenny Smith" loading="lazy"></div><figcaption><span class="tag">USER</span>Jenny Smith → IT.</figcaption></figure>
+          <figure class="shot" data-cap="Adding another user into the HR Organizational Unit."><div class="imgbox"><img src="screenshots/img-026-042.jpg" alt="User added to HR OU" loading="lazy"></div><figcaption><span class="tag">USER</span>New hire → HR.</figcaption></figure>
+        </div>
+      </div></div>
+
+      <div class="step" id="s-dns"><span class="snum">06</span><div class="sbody">
+        <h3 class="sh">Pointed DNS at the domain</h3>
+        <p>I changed DNS from <code>8.8.8.8</code> to my <strong>Active Directory domain service</strong>, so domain name resolution runs through the controller — a requirement for machines to find and join the domain.</p>
+        <figure class="shot" data-cap="Changing DNS from 8.8.8.8 to the Active Directory domain service."><div class="imgbox"><img src="screenshots/img-027-043.jpg" alt="DNS pointed at AD" loading="lazy"></div><figcaption><span class="tag">DNS</span>Resolution through the DC.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-join"><span class="snum">07</span><div class="sbody">
+        <h3 class="sh">Joined the client to the domain</h3>
+        <p>With DNS pointed correctly, the client was <strong>allowed to join the domain</strong>, and every user I created in AD could then sign in on it. The <code>ipconfig</code> on the client confirms its static IP and that DNS points at the DC.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="ipconfig /all on the client: static 192.168.10.100 with DNS pointed at the domain controller (.7)."><div class="imgbox"><img src="screenshots/img-028-044.jpg" alt="ipconfig showing DNS at DC" loading="lazy"></div><figcaption><span class="tag">VERIFY</span>Client pointed at the domain.</figcaption></figure>
+          <figure class="shot" data-cap="Joining the Windows 10 machine to the domain — a standalone PC becomes a managed member."><div class="imgbox"><img src="screenshots/img-029-045.jpg" alt="Join domain dialog" loading="lazy"></div><figcaption><span class="tag">JOIN</span>Workstation under the domain.</figcaption></figure>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ VALIDATION ============ -->
+<main class="panel" id="validation" role="tabpanel" hidden>
+  <div class="wrap narrow">
+    <div class="ptitle">
+      <span class="phaseflag">Phase 04</span>
+      <h2>Validation &amp; Atomic Red</h2>
+      <p>With the domain and monitoring in place, I needed to <strong>prove the logging actually worked</strong>. So I ran a controlled attack from Kali, confirmed the telemetry caught it in Splunk, and then used Atomic Red Team to find exactly where I was still blind.</p>
+    </div>
+    <div class="steps">
+      <div class="step" id="s-kaliip"><span class="snum">01</span><div class="sbody">
+        <h3 class="sh">Placed Kali on the network per the diagram</h3>
+        <p>I set the Kali machine's IP to match my diagram and confirmed it could ping the network, then made a working directory to keep the files I'd use.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="Changing the Kali IP to match the diagram and pinging successfully."><div class="imgbox"><img src="screenshots/img-031-047.jpg" alt="Kali IP change" loading="lazy"></div><figcaption><span class="tag">KALI</span>Attacker placed on the net.</figcaption></figure>
+          <figure class="shot" data-cap="Making an ad-project directory on Kali and preparing Crowbar for the brute-force test."><div class="imgbox"><img src="screenshots/img-032-048.jpg" alt="Kali working directory and crowbar" loading="lazy"></div><figcaption><span class="tag">SETUP</span>Crowbar &amp; working directory.</figcaption></figure>
+        </div>
+      </div></div>
+
+      <div class="step" id="s-wordlist"><span class="snum">02</span><div class="sbody">
+        <h3 class="sh">Prepared the password wordlist and enabled RDP</h3>
+        <p>I copied a password <strong>wordlist</strong> into the project directory and unzipped it, then enabled Remote Desktop for specific users on the Windows target — the service the brute force would hit.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="Copying the password wordlist into the ad-project directory and unzipping it."><div class="imgbox"><img src="screenshots/img-033-050.jpg" alt="Wordlist copied and unzipped" loading="lazy"></div><figcaption><span class="tag">WORDLIST</span>Password list ready.</figcaption></figure>
+          <figure class="shot" data-cap="Enabling Remote Desktop for specific users on the Windows target."><div class="imgbox"><img src="screenshots/img-034-052.jpg" alt="Enabling RDP for users" loading="lazy"></div><figcaption><span class="tag">RDP</span>Remote access enabled on the target.</figcaption></figure>
+        </div>
+      </div></div>
+
+      <div class="step" id="s-crowbar"><span class="snum">03</span><div class="sbody">
+        <h3 class="sh">Ran the brute force with Crowbar</h3>
+        <p>From Kali I used <strong>Crowbar</strong> over RDP against the Windows target — account <code>tsmith</code> (Terry Smith) at <code>192.168.10.100</code> — using the wordlist I'd saved. Crowbar worked through the list and returned <strong>RDP-SUCCESS</strong>, meaning a valid credential was found.</p>
+        <div class="term"><div class="tt"><i></i><i></i><i></i><span class="nm">kali@kali: ~/Desktop/ad-project</span></div>
+<pre><span class="pr">└─$</span> crowbar -b rdp -u tsmith -C <span class="hl">passwords.txt</span> -s 192.168.10.100/32
+Trying 192.168.10.100:3389
+<span class="ok">RDP-SUCCESS : 192.168.10.100:3389 - tsmith:P@ssw0rd1!</span></pre></div>
+        <figure class="shot" data-cap="Crowbar on Kali returning RDP-SUCCESS for tsmith against 192.168.10.100 — the brute force lands."><div class="imgbox"><img src="screenshots/img-035-054.jpg" alt="Crowbar RDP-SUCCESS" loading="lazy"></div><figcaption><span class="tag">ATTACK</span>Credential found over RDP.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-4625"><span class="snum">04</span><div class="sbody">
+        <h3 class="sh">Found the attack in Splunk — 20× Event 4625</h3>
+        <p>Back on the Splunk server I checked what telemetry the attack generated. There were <strong>twenty Event 4625 records</strong> — and when I looked up that code, it means <strong>failed logon</strong>. My monitoring pipeline had captured the attack.</p>
+        <div class="legend">
+          <div class="ev f"><b>4625</b><span>Failed logon</span></div>
+          <div class="ev s"><b>4624</b><span>Successful logon</span></div>
+          <div class="ev l"><b>4776</b><span>Credential validation</span></div>
+        </div>
+        <figure class="shot" data-cap="Splunk breaking down EventCode on the target: 20 × 4625 (failed logon, ~87%) for account tsmith on TARGET-PC." style="margin-top:14px"><div class="imgbox"><img src="screenshots/img-036-055.jpg" alt="Splunk EventCode 4625 counted 20 times" loading="lazy"></div><figcaption><span class="tag">4625</span>Twenty failed logons captured.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-sametime"><span class="snum">05</span><div class="sbody">
+        <h3 class="sh">Recognized the brute-force signature</h3>
+        <p>Looking closer, all of those failures happened at <strong>the same time</strong> — a burst of failed logons in one instant is a clear indicator of an automated brute-force attack, not a user mistyping a password.</p>
+        <figure class="shot" data-cap="All the 4625 failures clustered at the same second — the signature of an automated attack."><div class="imgbox"><img src="screenshots/img-037-057.jpg" alt="4625 events at the same time" loading="lazy"></div><figcaption><span class="tag">PATTERN</span>Failures bunched in one instant.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-4624"><span class="snum">06</span><div class="sbody">
+        <h3 class="sh">Traced the successful logon back to Kali</h3>
+        <p>Searching for <strong>Event 4624</strong> showed a single successful logon right after the 20 failures — the attack worked. And the successful event told me <strong>where it came from</strong>: my Kali machine and the exact IP I attacked from. That's a full compromise reconstructed from logs.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="Event 4624 — one successful logon after 20 brute-force tries. The attack succeeded."><div class="imgbox"><img src="screenshots/img-038-058.jpg" alt="Event 4624 successful logon" loading="lazy"></div><figcaption><span class="tag">4624</span>Success after 20 tries.</figcaption></figure>
+          <figure class="shot" data-cap="The 4624 event shows the source — my Kali machine's IP, exactly where the brute force came from."><div class="imgbox"><img src="screenshots/img-039-059.jpg" alt="4624 showing source IP" loading="lazy"></div><figcaption><span class="tag">SOURCE</span>Logon traced to the attacker.</figcaption></figure>
+        </div>
+      </div></div>
+
+      <div class="step" id="s-atomic"><span class="snum">07</span><div class="sbody">
+        <h3 class="sh">Installed Atomic Red Team</h3>
+        <p>To test more techniques, I installed <strong>Atomic Red Team</strong>. First I added a scoped <strong>Microsoft Defender exclusion</strong> so the security tooling wouldn't quarantine the test files mid-run, then installed it with its dependencies. Atomic Red provides "atomics" — small tests, each tied to a technique ID that <strong>maps to MITRE ATT&amp;CK</strong>.</p>
+        <div class="mitre" style="margin-bottom:14px">
+          <span class="mchip"><span class="id">T1110</span><span class="nm">Brute Force · RDP</span></span>
+          <span class="mchip"><span class="id">T1136.001</span><span class="nm">Create Account · Local</span></span>
+          <span class="mchip"><span class="id">T1059.001</span><span class="nm">PowerShell</span></span>
+          <span class="mchip"><span class="id">T1059.003</span><span class="nm">Windows Command Shell</span></span>
+        </div>
+        <div class="shotrow">
+          <figure class="shot" data-cap="Adding a scoped Defender folder exclusion before installing Atomic Red Team."><div class="imgbox"><img src="screenshots/img-040-060.jpg" alt="Defender exclusion" loading="lazy"></div><figcaption><span class="tag">PREP</span>Scoped exclusion for the test.</figcaption></figure>
+          <figure class="shot" data-cap="Atomic Red Team installed — the atomics map to MITRE ATT&CK technique IDs."><div class="imgbox"><img src="screenshots/img-042-064.jpg" alt="Atomic Red Team atomics and technique IDs" loading="lazy"></div><figcaption><span class="tag">ATOMIC</span>Technique IDs ready to test.</figcaption></figure>
+        </div>
+      </div></div>
+
+      <div class="step" id="s-gap"><span class="snum">08</span><div class="sbody">
+        <h3 class="sh">Tested Create Account (T1136.001) — and found a visibility gap</h3>
+        <p>I ran the <strong>T1136.001</strong> test, which creates a local account (<code>NewLocalUser</code>), then went back to Splunk to see if it showed up. <strong>Nothing came up</strong> — and that was the valuable result.</p>
+        <div class="call gap"><p class="ch">The gap was the finding</p><p>If nothing appears, it means I'm <strong>blind to that activity</strong>. If an attacker compromised the system and created a local account under those settings, I wouldn't detect it. That's not a failure — it's a precise map of where to build the next detection. This is exactly what Atomic Red Team is for: surfacing visibility gaps.</p></div>
+        <div class="shotrow" style="margin-top:14px">
+          <figure class="shot" data-cap="Running the T1136.001 test to create a local account (NewLocalUser)."><div class="imgbox"><img src="screenshots/img-044-069.jpg" alt="T1136.001 create local account test" loading="lazy"></div><figcaption><span class="tag">T1136.001</span>Create-account technique run.</figcaption></figure>
+          <figure class="shot" data-cap="Checking Splunk afterward — the activity didn't surface, revealing a visibility gap to close."><div class="imgbox"><img src="screenshots/img-045-071.jpg" alt="Splunk showing nothing for the local account" loading="lazy"></div><figcaption><span class="tag">GAP</span>Blind spot identified.</figcaption></figure>
+        </div>
+      </div></div>
+
+      <div class="step" id="s-powershell"><span class="snum">09</span><div class="sbody">
+        <h3 class="sh">PowerShell technique (T1059) — captured and ready for alerting</h3>
+        <p>Next I ran the <strong>command and scripting / PowerShell</strong> technique. Defender even caught some of it (which is why the earlier exclusion mattered), and in Splunk I could <strong>see the exact command</strong> that Atomic Red had run. That means I can build alerts on this activity going forward — Atomic Red surfaces it, and Splunk makes it detectable.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="Running the PowerShell command-and-scripting technique; Defender flagged some activity."><div class="imgbox"><img src="screenshots/img-047-075.jpg" alt="PowerShell technique and Defender activity" loading="lazy"></div><figcaption><span class="tag">T1059</span>Scripting technique executed.</figcaption></figure>
+          <figure class="shot" data-cap="Sysmon in Splunk shows the exact command Atomic Red ran — the basis for a future detection alert."><div class="imgbox"><img src="screenshots/img-048-077.jpg" alt="Splunk Sysmon event for the PowerShell command" loading="lazy"></div><figcaption><span class="tag">DETECT</span>Command captured in Splunk.</figcaption></figure>
+        </div>
+        <div class="call win"><p class="ch">Why this phase mattered</p><p>The point wasn't to "hack" my own lab — it was to <strong>validate the monitoring and find my blind spots</strong>. I confirmed the pipeline catches a real attack, learned exactly which techniques I couldn't yet see, and set up the account hardening that comes next.</p></div>
+      </div></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ HARDENING ============ -->
+<main class="panel" id="hardening" role="tabpanel" hidden>
+  <div class="wrap narrow">
+    <div class="ptitle">
+      <span class="phaseflag">Phase 05</span>
+      <h2>Hardening &amp; Administration</h2>
+      <p>After seeing what the attack and Atomic Red revealed, I went back into Active Directory and tightened it up — managing access through groups, restricting <em>when</em> people can log in, and ending access automatically when it should end.</p>
+    </div>
+    <div class="steps">
+      <div class="step" id="s-groups"><span class="snum">01</span><div class="sbody">
+        <h3 class="sh">Managed access with security groups</h3>
+        <p>I added users to <strong>group objects</strong> so many people share the same permissions at once — instead of manually assigning permissions to thousands of accounts one by one. Group-based access is the only way permissions stay manageable and auditable at scale.</p>
+        <figure class="shot" data-cap="Adding users to a group object so they inherit the same permissions together, rather than setting each account individually."><div class="imgbox"><img src="screenshots/img-050-080.jpg" alt="Adding users to a group" loading="lazy"></div><figcaption><span class="tag">GROUPS</span>Permissions managed by group.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-simulated"><span class="snum">02</span><div class="sbody">
+        <h3 class="sh">Populated a realistic work environment</h3>
+        <p>I created <strong>simulated data and users</strong> across the departments so the domain behaves like a real, running company — the realistic backdrop needed to test policy and troubleshooting properly.</p>
+        <figure class="shot" data-cap="Simulated users and data across departmental OUs — a whole work environment to administer and troubleshoot."><div class="imgbox"><img src="screenshots/img-051-081.jpg" alt="ADUC with many simulated users" loading="lazy"></div><figcaption><span class="tag">SIMULATION</span>A full staff directory.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-logonhours"><span class="snum">03</span><div class="sbody">
+        <h3 class="sh">Restricted logon hours</h3>
+        <p>I set <strong>time-based access control</strong> on accounts so employees can't log in during a set window. That protects maintenance work — backups and software updates run cleanly when no one is logged in and changing data.</p>
+        <figure class="shot" data-cap="Configuring Logon Hours so users can't sign in during the maintenance window reserved for backups and updates."><div class="imgbox"><img src="screenshots/img-052-082.jpg" alt="Logon Hours configuration" loading="lazy"></div><figcaption><span class="tag">LOGON HOURS</span>Access limited by time.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-expire"><span class="snum">04</span><div class="sbody">
+        <h3 class="sh">Set accounts to expire automatically</h3>
+        <p>I configured <strong>account expiration</strong> so contractor accounts end on their due date. Once a contract is up, the account expires on its own — the person can't reach company information afterward, with no manual cleanup to forget.</p>
+        <figure class="shot" data-cap="Setting contractor accounts to expire after their end date, so access ends with the contract automatically."><div class="imgbox"><img src="screenshots/img-053-085.jpg" alt="Account expiration setting" loading="lazy"></div><figcaption><span class="tag">EXPIRY</span>Access ends with the contract.</figcaption></figure>
+      </div></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ TROUBLESHOOTING ============ -->
+<main class="panel" id="troubleshooting" role="tabpanel" hidden>
+  <div class="wrap narrow">
+    <div class="ptitle">
+      <span class="phaseflag">Phase 06 · The day job</span>
+      <h2>Troubleshooting</h2>
+      <p>Running a domain means solving the problems employees actually hit. I worked through the most common ones in my simulated environment, step by step — including what to do when the quick fix <em>doesn't</em> hold.</p>
+    </div>
+    <div class="steps">
+      <div class="step" id="s-lockout"><span class="snum">01</span><div class="sbody">
+        <h3 class="sh">User locked out — reset and unlock</h3>
+        <p>A common issue: a user is <strong>locked out</strong> and can't log in. I confirmed the account was locked in AD, then <strong>reset the password and unlocked</strong> the account. For a one-off, that's the whole fix.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="The user's account showing as locked out in Active Directory."><div class="imgbox"><img src="screenshots/img-054-087.jpg" alt="Locked account in AD" loading="lazy"></div><figcaption><span class="tag">LOCKED</span>Account locked out.</figcaption></figure>
+          <figure class="shot" data-cap="Resetting the password and unlocking the account to restore access."><div class="imgbox"><img src="screenshots/img-054-086.jpg" alt="Resetting password" loading="lazy"></div><figcaption><span class="tag">FIX</span>Reset &amp; unlock.</figcaption></figure>
+        </div>
+      </div></div>
+
+      <div class="step" id="s-eventviewer"><span class="snum">02</span><div class="sbody">
+        <h3 class="sh">Recurring lockout — trace the real source</h3>
+        <p>But what if the account <strong>locks again every 20 minutes</strong>, even after resetting the password and unlocking it? A recurring lockout isn't a password problem. I used <strong>Event Viewer</strong> to review the security logs — who was logging in and when — and <strong>pinpointed the exact computer</strong> generating the bad logons (usually a stale cached credential, a mapped drive, or a service still using the old password). Fix the source, and the lockout stops.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="Event Viewer security logs — reviewing logon events to find who and what is driving the lockouts."><div class="imgbox"><img src="screenshots/img-056-090.jpg" alt="Event Viewer security log" loading="lazy"></div><figcaption><span class="tag">LOGS</span>Reviewing logon events.</figcaption></figure>
+          <figure class="shot" data-cap="Pinpointing the specific computer responsible for the repeated lockouts."><div class="imgbox"><img src="screenshots/img-056-092.jpg" alt="Identifying the source computer" loading="lazy"></div><figcaption><span class="tag">SOURCE</span>Found the offending machine.</figcaption></figure>
+        </div>
+      </div></div>
+
+      <div class="step" id="s-expireduser"><span class="snum">03</span><div class="sbody">
+        <h3 class="sh">Account expired</h3>
+        <p>Another case: a valid user suddenly can't log in, with no lockout. The cause is often an <strong>expired account</strong> — the expiration date I set in hardening has passed. If the person is staying, I extend or remove the expiration; if not, the cutoff worked exactly as intended.</p>
+        <figure class="shot" data-cap="Checking an account's expiration and unlock state in AD — the expiry control from the hardening phase, now seen from the help-desk side."><div class="imgbox"><img src="screenshots/img-057-093.jpg" alt="Account expiry properties" loading="lazy"></div><figcaption><span class="tag">EXPIRED</span>Expiration date reached.</figcaption></figure>
+      </div></div>
+
+      <div class="step" id="s-permissions"><span class="snum">04</span><div class="sbody">
+        <h3 class="sh">Can't access a resource — fix it through the group</h3>
+        <p>A new HR hire, <strong>Berry</strong>, needs to create files in the HR share but gets <strong>access denied</strong>. I went to AD and checked her <strong>Member Of</strong> tab — empty. I <strong>compared her to a working HR peer</strong>, who was in the <code>$HR-Staff</code> group, and confirmed on the HR folder's <strong>NTFS security</strong> that <code>$HR-Staff</code> has full control. Berry was never added. Adding her to the group — not setting one-off permissions — fixed it the right way.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="Berry, a new HR hire, gets access denied trying to create a folder in the HR share."><div class="imgbox"><img src="screenshots/img-058-095.jpg" alt="Access denied in HR folder" loading="lazy"></div><figcaption><span class="tag">SYMPTOM</span>Access denied in HR.</figcaption></figure>
+          <figure class="shot" data-cap="Comparing Berry's memberships to another HR staffer to see exactly what group she's missing."><div class="imgbox"><img src="screenshots/img-059-096.jpg" alt="Comparing Member Of tabs" loading="lazy"></div><figcaption><span class="tag">COMPARE</span>Mirror a working peer.</figcaption></figure>
+          <figure class="shot" data-cap="The HR folder's NTFS security: the $HR-Staff group has full control — so adding Berry to that group grants access."><div class="imgbox"><img src="screenshots/img-062-099.jpg" alt="NTFS permissions for HR folder" loading="lazy"></div><figcaption><span class="tag">NTFS</span>$HR-Staff = full control.</figcaption></figure>
+          <figure class="shot" data-cap="Confirming the HR staff group's permissions, then adding Berry so she inherits access correctly."><div class="imgbox"><img src="screenshots/img-060-097.jpg" alt="HR staff permissions" loading="lazy"></div><figcaption><span class="tag">FIX</span>Access via group membership.</figcaption></figure>
+        </div>
+      </div></div>
+
+      <div class="step" id="s-trust"><span class="snum">05</span><div class="sbody">
+        <h3 class="sh">Broken workstation trust relationship</h3>
+        <p>The toughest of the four: a machine shows <em>"The security database on the server does not have a computer account for this workstation trust relationship."</em> This happens when a computer has been <strong>off the domain too long</strong> and its secure channel breaks. The fix takes more steps:</p>
+        <p style="margin-bottom:10px">① Sign in with the <strong>local</strong> admin account (not the domain — add <code>.\</code> so it signs into the local account). ② In the PC's properties, drop it into a <strong>workgroup</strong> to un-domain it, and reboot. ③ In AD, <strong>delete the stale computer object</strong> — if you keep the same computer name, the old object must be deleted first or the rejoin conflicts. ④ Rejoin the domain and log back in.</p>
+        <div class="shotrow">
+          <figure class="shot" data-cap="The error at the sign-in screen: the security database has no computer account for this workstation trust relationship."><div class="imgbox"><img src="screenshots/img-063-100.jpg" alt="Workstation trust error" loading="lazy"></div><figcaption><span class="tag">ERROR</span>Trust relationship failed.</figcaption></figure>
+          <figure class="shot" data-cap="Signing in with the local admin account (not the domain) to regain access to the machine."><div class="imgbox"><img src="screenshots/img-064-102.jpg" alt="Local admin login" loading="lazy"></div><figcaption><span class="tag">STEP 1</span>Log in locally.</figcaption></figure>
+          <figure class="shot" data-cap="Changing the domain membership in the computer's properties to bring it back onto the domain."><div class="imgbox"><img src="screenshots/img-065-103.jpg" alt="Changing domain membership" loading="lazy"></div><figcaption><span class="tag">STEP 2</span>Workgroup, then rejoin.</figcaption></figure>
+          <figure class="shot" data-cap="The computer object still existed in AD but was gone on the machine — delete it in AD, then re-add, or the rejoin conflicts."><div class="imgbox"><img src="screenshots/img-066-104.jpg" alt="Delete and re-add computer object in AD" loading="lazy"></div><figcaption><span class="tag">STEP 3</span>Delete stale object, re-add.</figcaption></figure>
+        </div>
+        <div class="call"><p class="ch">The detail that saves an afternoon</p><p>Knowing you must <strong>delete the old computer object in AD before rejoining with the same name</strong> is the difference between a five-minute fix and hours of conflicts.</p></div>
+      </div></div>
+    </div>
+
+    <div class="ptitle" style="margin-top:50px">
+      <h2 style="font-size:clamp(20px,3.3vw,26px)">That's the full project — designed, built, validated, and supported.</h2>
+      <p>One environment that shows I can stand up infrastructure, monitor it, prove the monitoring works, harden it, and handle the everyday issues that keep a domain running.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Active Directory Project — built &amp; documented by <b>Sukhwinder Singh</b></span>
+    <span class="ft-mono">VirtualBox · Windows Server 2022 · Splunk · Sysmon · Kali · Atomic Red Team · MITRE ATT&amp;CK</span>
+  </div>
+</footer>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Enlarged screenshot">
+  <button class="x" id="lbx" aria-label="Close">✕</button>
+  <figure><img id="lbimg" src="" alt=""><figcaption id="lbcap"></figcaption></figure>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var views=['overview','network','monitoring','directory','validation','hardening','troubleshooting'];
+  var tabs=Array.prototype.slice.call(document.querySelectorAll('.tab'));
+
+  /* theme */
+  var tbtn=document.getElementById('theme');
+  try{var sv=localStorage.getItem('adproj-theme'); if(sv) root.setAttribute('data-theme',sv);}catch(e){}
+  tbtn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    var next=cur==='light'?'dark':(cur==='dark'?'light':((window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches)?'light':'dark'));
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('adproj-theme',next);}catch(e){}
+  });
+
+  function show(v,opts){
+    opts=opts||{};
+    if(views.indexOf(v)<0) v='overview';
+    views.forEach(function(id){var p=document.getElementById(id); if(p) p.hidden=(id!==v);});
+    tabs.forEach(function(t){t.setAttribute('aria-selected', t.getAttribute('data-view')===v?'true':'false');});
+    var active=document.querySelector('.tab[data-view="'+v+'"]');
+    if(active&&active.scrollIntoView) active.scrollIntoView({inline:'center',block:'nearest'});
+    if(opts.push!==false){ try{history.replaceState(null,'','#'+v);}catch(e){} }
+    if(opts.step){
+      // wait for panel to be visible, then scroll to the step
+      requestAnimationFrame(function(){
+        var el=document.getElementById(opts.step);
+        if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+      });
+    } else if(!opts.noscroll){
+      window.scrollTo({top:0,behavior:'auto'});
+    }
+  }
+  tabs.forEach(function(t){ t.addEventListener('click',function(){ show(t.getAttribute('data-view'),{}); }); });
+  document.querySelectorAll('[data-view].jchip, .prow[data-view]').forEach(function(b){
+    b.addEventListener('click',function(){ show(b.getAttribute('data-view'),{step:b.getAttribute('data-step')||null}); });
+  });
+  window.addEventListener('hashchange',function(){ show((location.hash||'').replace('#',''),{push:false}); });
+  show((location.hash||'').replace('#','')||'overview',{push:false,noscroll:true});
+
+  /* lightbox */
+  var lb=document.getElementById('lb'),lbimg=document.getElementById('lbimg'),lbcap=document.getElementById('lbcap'),lbx=document.getElementById('lbx');
+  document.querySelectorAll('.shot').forEach(function(fig){
+    fig.addEventListener('click',function(){
+      var img=fig.querySelector('img'); if(!img) return;
+      lbimg.src=img.src; lbimg.alt=img.alt||'';
+      lbcap.textContent=fig.getAttribute('data-cap')||'';
+      lb.classList.add('on');
+    });
+  });
+  function close(){ lb.classList.remove('on'); lbimg.src=''; }
+  lb.addEventListener('click',function(e){ if(e.target!==lbx) close(); });
+  lbx.addEventListener('click',function(e){ e.stopPropagation(); close(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') close(); });
+})();
+</script>
